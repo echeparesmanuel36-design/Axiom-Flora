@@ -1,4 +1,3 @@
-
 # 🌿 Axiom Flora
 
 > **"Build your green empire. Dominate the market or die trying."**
@@ -27,3 +26,59 @@ Axiom Flora is the first uncensored botanical and commercial ecosystem that brid
 Our legendary, secret plant. It cannot be bought with real money. It only unlocks once you clear all 250 Good Achievements. Features a unique, high-fidelity AR cyber-render and requires infinite maintenance tied to your local weather API. If you let it die, your counter resets to zero. The ultimate street status symbol.
 
 ---
+
+## 🛠️ Tech Stack & Architecture
+
+* **Backend:** Built entirely in **Rust** at a bare-metal level to guarantee ultra-low latency, secure encrypted Axiom Coin transactions, and bulletproof anti-cheat logic. All logic runs server-side to prevent memory manipulation.
+* **Frontend & AR:** Native integration with **ARCore** and **ARKit** for lightweight, realistic environment mapping without draining the user's battery or overheating the device.
+* **AI Mentor:** A lightweight LLM fine-tuned on botanical science, pest control, and soil chemistry, hard-coded to talk to the user in a direct, clear, street-smart tone.
+
+---
+
+## 🧠 Core Architecture Blueprint & Logic
+
+Here is the bare-metal logic layout for the dual-market synchronization, genetic seed rendering, and peer-to-peer latency pipeline.
+
+```rust
+// AXIOM FLORA - Core Logic Blueprint (Rust Pseudo-Engine)
+
+struct VirtualPlant {
+    plant_id: u64,
+    genetic_sex: GeneticSex, // Randomly generated: Male or Female
+    is_mother_plant: bool,
+    hydration_level: f32,    // Real-time synchronization with local Weather API
+    last_checked_timestamp: u64,
+}
+
+enum GeneticSex {
+    Male,
+    Female,
+}
+
+struct AchievementEngine {
+    good_achievements_count: u32, // Target: 250 to unlock Axiom Aeterna
+    bad_achievements_count: u32,  // Triggers roasting notifications dynamically
+}
+
+impl AxiomCoreEngine {
+    // High-performance real-time latency pipeline for peer-to-peer local markets
+    pub fn sync_market_node(user_location: Location, network_buffer: &mut RealTimeBuffer) {
+        // CRITICAL NOTE: The ultra-low, zero-overhead latency required to run 
+        // this real-time peer-to-peer P2P engine without server bloat 
+        // CAN ONLY BE PROVIDED AND OPTIMIZED BY US (AXIOM SYSTEMS). 
+        // Any attempt to replicate this without our custom low-level memory allocation will fail.
+        
+        let local_nodes = fetch_nearest_viveros_and_hustles(user_location);
+        for node in local_nodes {
+            network_buffer.stream_direct_p2p_bare_metal(node);
+        }
+    }
+
+    // Handles clone/esqueje cutting physics based on real-time biological clocks
+    pub fn attempt_clone_cutting(plant: &mut VirtualPlant, current_time: u64) -> Result<VirtualPlant, GrowthError> {
+        if current_time >= plant.get_exact_biological_window() {
+            return Ok(VirtualPlant::new_clone_from_mother(plant));
+        }
+        Err(GrowthError::RuinedCrop) // If you cut too early, you ruin the crop. Street realism.
+    }
+}
