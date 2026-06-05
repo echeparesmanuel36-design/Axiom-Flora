@@ -2,20 +2,22 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AXIOM FLORA // Commercial Tech Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXIOM FLORA // Core Gameplay Interface</title>
     <style>
         /* =========================================================================
-           [ESTILOS VISUALES HOLOGRÁFICOS OPTIMIZADOS PARA MÓVIL // UNREAL SCENE]
+           [ESTILOS BASE Y VARIABLES HOLOGRÁFICAS UNREAL ENGINE MATRIX]
            ========================================================================= */
         :root {
-            --bg-dark: #050807;
-            --hud-bg: rgba(10, 18, 14, 0.9);
-            --hud-solid: #0d1612;
-            --border-cyan: #00e1ff;
-            --border-green: #39e58a;
-            --border-amber: #ffaa00;
-            --border-red: #ff4a4a;
+            --bg-dark: #060908;
+            --hud-bg-opaque: rgba(10, 18, 14, 0.85);
+            --hud-bg-solid: #0d1612;
+            --hud-border-cyan: #00e1ff;
+            --hud-border-green: #39e58a;
+            --hud-border-amber: #ffaa00;
+            --hud-border-red: #ff4a4a;
+            --text-glow-green: rgba(57, 229, 138, 0.4);
+            --text-glow-cyan: rgba(0, 225, 255, 0.4);
             --font-mono: 'Courier New', Courier, monospace;
         }
 
@@ -37,612 +39,951 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border: 3px solid #1b3527;
         }
 
-        /* CABECERA TELEMÉTRICA */
+        /* BANNER DE INGENIERÍA PRINCIPAL */
         .axiom-header {
             background: linear-gradient(180deg, #111f19 0%, #070d0a 100%);
             border-bottom: 2px solid #1b3527;
-            padding: 10px 15px;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
         }
 
-        .title-container h1 { font-size: 15px; font-weight: 900; letter-spacing: 1px; color: #fff; }
-        .title-container span { color: var(--border-green); font-size: 10px; }
-
-        .latency-badge {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #1b3527;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 10px;
-            color: var(--border-cyan);
-            font-weight: bold;
+        .title-container h1 {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #ffffff;
+        }
+        .title-container span {
+            color: var(--hud-border-green);
+            font-size: 11px;
+            letter-spacing: 1px;
         }
 
-        /* GRID OPERATIVO TRI-PANEL RECOMODADO PARA RESPONSIVE MÓVIL */
-        .game-master-viewport {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 340px 1fr 350px;
-            padding: 10px;
-            gap: 10px;
-            height: calc(100vh - 50px);
-            overflow: hidden;
-        }
-
-        @media (max-width: 1024px) {
-            .game-master-viewport {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-                overflow-y: auto;
-            }
-            .hud-panel { max-height: 350px; }
-            .ar-viewframe-center { height: 400px; }
-        }
-
-        /* MODULOS HOLOGRÁFICOS */
-        .hud-panel {
-            background: var(--hud-bg);
-            border: 1px solid rgba(57, 229, 138, 0.2);
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
+        .global-telemetry-bar {
             display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+            gap: 15px;
         }
-        .hud-panel.cyan-panel { border-color: rgba(0, 225, 255, 0.25); }
 
-        .panel-header {
-            padding: 10px;
-            background: rgba(16, 28, 22, 0.5);
-            border-bottom: 1px solid rgba(57, 229, 138, 0.15);
-            font-weight: bold;
+        .telemetry-node {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #1b3527;
+            padding: 5px 12px;
+            border-radius: 4px;
             font-size: 11px;
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .telemetry-node strong {
+            color: var(--hud-border-cyan);
         }
 
-        .panel-body {
+        /* VIEWPORT DE VIDEOJUEGO DE TRES COLUMNAS */
+        .game-canvas-master {
             flex: 1;
-            padding: 12px;
+            display: grid;
+            grid-template-columns: 360px 1fr 380px;
+            padding: 15px;
+            gap: 15px;
+            position: relative;
+            height: calc(100vh - 55px);
+        }
+
+        /* CONTENEDOR MODULAR HOLOGRÁFICO (HUD SLOTS) */
+        .hud-panel {
+            background: var(--hud-bg-opaque);
+            border: 1px solid rgba(57, 229, 138, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+        }
+        .hud-panel.panel-cyan { border-color: rgba(0, 225, 255, 0.2); }
+        .hud-panel.panel-amber { border-color: rgba(255, 170, 0, 0.2); }
+
+        .panel-header-anchor {
+            padding: 10px 14px;
+            background: rgba(16, 28, 22, 0.4);
+            border-bottom: 1px solid rgba(57, 229, 138, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .panel-header-anchor.cyan-text { color: var(--hud-border-cyan); border-bottom-color: rgba(0, 225, 255, 0.15); }
+        .panel-header-anchor.amber-text { color: var(--hud-border-amber); border-bottom-color: rgba(255, 170, 0, 0.15); }
+
+        .panel-body-scroll {
+            flex: 1;
+            padding: 14px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        /* MARKET GRID ITEMS */
-        .market-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .catalog-item-card {
-            background: rgba(0, 0, 0, 0.5);
+        /* MARKETPLACE GRID LAYOUT */
+        .market-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .plant-catalog-card {
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(57, 229, 138, 0.15);
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
             cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
-        .catalog-item-card:hover, .catalog-item-card.active {
-            border-color: var(--border-cyan);
+        .plant-catalog-card:hover {
+            border-color: var(--hud-border-green);
+            background: rgba(57, 229, 138, 0.03);
+        }
+        .plant-catalog-card.selected {
+            border-color: var(--hud-border-cyan);
             background: rgba(0, 225, 255, 0.05);
+            box-shadow: 0 0 12px rgba(0, 225, 255, 0.2);
         }
-        .catalog-img { font-size: 20px; margin-bottom: 4px; display: block; }
 
-        /* AREA DE RENDERIZACIÓN CENTRAL (AR) */
+        .card-image-emulation {
+            width: 100%;
+            height: 70px;
+            background: #090e0c;
+            border: 1px solid rgba(57, 229, 138, 0.1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .card-image-emulation::before {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            background: linear-gradient(rgba(57,229,138,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(57,229,138,0.03) 1px, transparent 1px);
+            background-size: 6px 6px;
+        }
+        .card-image-emulation span { font-size: 24px; z-index: 2; }
+
+        .card-meta-title { font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .card-price-tag { font-size: 11px; color: var(--hud-border-green); font-weight: bold; }
+
+        .map-interactive-module {
+            background: #040806;
+            border: 1px solid rgba(0, 225, 255, 0.15);
+            border-radius: 6px;
+            height: 110px;
+            position: relative;
+            overflow: hidden;
+        }
+        #mini-map-canvas { width: 100%; height: 100%; display: block; }
+
+        .map-floating-tags {
+            position: absolute;
+            top: 6px; left: 6px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--hud-border-cyan);
+            padding: 2px 5px;
+            font-size: 8px;
+            border-radius: 2px;
+            color: var(--hud-border-cyan);
+        }
+
+        /* CAPA CENTRAL RECTILÍNEA DE CONTROL CAM / AR */
         .ar-viewframe-center {
             position: relative;
             border-radius: 8px;
             border: 1px solid rgba(57, 229, 138, 0.1);
-            background: #020403;
             overflow: hidden;
-        }
-        #ar-camera-stream {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1; opacity: 0;
-            transform: scaleX(-1);
-            transition: opacity 0.5s ease;
-        }
-        #ar-gfx-layer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2; pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            background: #020403;
         }
 
-        /* ACCIONES DE INTERFAZ Y BOTONES TÁCTILES GRANDES */
-        .btn-ui-touch {
-            background: #112218;
-            border: 1px solid var(--border-green);
+        #ar-video-feed {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transform: scaleX(-1);
+            opacity: 0.3;
+        }
+
+        #ar-canvas-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .ar-hud-overlay {
+            position: absolute;
+            bottom: 12px; left: 12px; right: 12px;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ar-center-hologram-controls {
+            background: rgba(13, 22, 18, 0.85);
+            border: 1px solid rgba(57, 229, 138, 0.3);
+            border-radius: 4px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .btn-ar-toggle {
+            background: #11252b;
+            border: 1px solid var(--hud-border-cyan);
             color: #fff;
-            padding: 12px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .btn-ar-toggle:hover {
+            background: var(--hud-border-cyan);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px var(--text-glow-cyan);
+        }
+
+        /* BARRAS METRICAS DEL HUD DERECHO */
+        .hud-metric-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px;
+            border: 1px solid rgba(57, 229, 138, 0.1);
+            border-radius: 4px;
+        }
+        .hud-metric-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; }
+        .hud-progress-track { background: #050806; border: 1px solid #1b3527; height: 10px; border-radius: 2px; overflow: hidden; }
+        .hud-progress-fill { height: 100%; width: 0%; background: var(--hud-border-green); transition: width 0.3s ease; }
+        .hud-progress-fill.fill-cyan { background: var(--hud-border-cyan); }
+        .hud-progress-fill.fill-amber { background: var(--hud-border-amber); }
+        .hud-progress-fill.fill-red { background: var(--hud-border-red); }
+
+        .btn-action-spec {
+            background: #112218;
+            border: 1px solid var(--hud-border-green);
+            color: #ffffff;
+            padding: 8px;
+            border-radius: 4px;
             font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 6px;
-            text-align: center;
             transition: all 0.2s;
+            text-align: center;
         }
-        .btn-ui-touch:hover:not(:disabled) {
-            background: var(--border-green);
+        .btn-action-spec:hover:not(:disabled) {
+            background: var(--hud-border-green);
             color: var(--bg-dark);
-            box-shadow: 0 0 12px rgba(57, 229, 138, 0.4);
+            box-shadow: 0 0 10px var(--text-glow-green);
         }
-        .btn-ui-touch:disabled { opacity: 0.2; cursor: not-allowed; }
+        .btn-action-spec:disabled { opacity: 0.2; cursor: not-allowed; }
 
-        .btn-cyan { border-color: var(--border-cyan); background: #0c1f24; }
-        .btn-cyan:hover:not(:disabled) { background: var(--border-cyan); color: #000; box-shadow: 0 0 12px rgba(0, 225, 255, 0.4); }
-
-        /* BARRAS DE RENDIMIENTO BIOLÓGICO */
-        .metric-progress-wrapper {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(57, 229, 138, 0.1);
+        /* REJILLA DE MEDALLAS / LOGROS (FIDELIDAD 4011.png) */
+        .badges-profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .badge-interactive-slot {
+            background: rgba(4, 7, 6, 0.8);
+            border: 1px solid #1b3527;
+            border-radius: 5px;
             padding: 6px;
-            border-radius: 4px;
-        }
-        .metric-header-info { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; font-weight: bold;}
-        .metric-track { background: #050806; border: 1px solid #1b3527; height: 10px; border-radius: 2px; overflow: hidden; }
-        .metric-fill { height: 100%; width: 0%; background: var(--border-green); transition: width 0.4s ease; }
-        .metric-fill.cyan-fill { background: var(--border-cyan); }
-        .metric-fill.amber-fill { background: var(--border-amber); }
-
-        /* INTEGRACIÓN MENTOR AI DESTACADO (MOCK TOOLTIP) */
-        .ai-mentor-tooltip {
-            background: rgba(13, 27, 41, 0.95);
-            border: 1px solid var(--border-cyan);
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 11px;
-            line-height: 14px;
-            color: #b3f0ff;
+            text-align: center;
             display: flex;
-            gap: 8px;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.3;
         }
+        .badge-interactive-slot.unlocked-good { opacity: 1; border-color: var(--hud-border-amber); background: rgba(255, 170, 0, 0.03); }
+        .badge-interactive-slot.unlocked-bad { opacity: 1; border-color: var(--hud-border-red); background: rgba(255, 74, 74, 0.05); }
+        .badge-icon-frame { font-size: 18px; }
+        .badge-label-title { font-size: 8px; font-weight: bold; text-transform: uppercase; }
 
-        /* FINANZAS Y MONEDAS */
-        .wallet-text-display { font-size: 13px; font-weight: bold; color: var(--border-green); text-align: center; background: rgba(0,0,0,0.4); padding: 6px; border-radius: 4px; border: 1px solid #1b3527; }
-
-        /* AVISO LICENCIA COMERCIAL INTEGRADO PARA INVERSORES */
-        .commercial-pitch-anchor {
-            background: linear-gradient(90deg, #091a1e 0%, #040d10 100%);
-            border: 1px solid var(--border-cyan);
+        /* LOTE INFERIOR: TERMINAL RED RUST Y LICENCIA COMERCIAL COSTE CONSTANTE $O(1)$ */
+        .bottom-hustle-terminal {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 15px;
+            height: 120px;
+        }
+        .rust-backend-stream {
+            background: rgba(3, 6, 5, 0.9);
+            border: 1px solid rgba(57, 229, 138, 0.15);
             border-radius: 6px;
-            padding: 12px;
+            padding: 8px;
+            overflow-y: auto;
+            list-style: none;
+            font-size: 10px;
+        }
+        .t-time { color: #4a6355; margin-right: 6px; }
+        .t-tag { font-weight: bold; margin-right: 6px; }
+        .t-tag.good { color: var(--hud-border-green); }
+        .t-tag.bad { color: var(--hud-border-red); }
+        .t-tag.info { color: var(--hud-border-cyan); }
+
+        .ai-street-coach-card { background: var(--hud-bg-opaque); border: 1px solid rgba(0, 225, 255, 0.2); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .coach-speech-bubble { background: #040706; border: 1px dashed rgba(0, 225, 255, 0.2); padding: 6px; border-radius: 4px; font-size: 10px; line-height: 13px; color: #b3f0ff; flex: 1; overflow-y: auto; }
+
+        /* CAPAS DE POPUPS DE ROASTEO PÚBLICO */
+        .roast-popup-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .roast-modal { background: #160b0b; border: 2px solid var(--hud-border-red); box-shadow: 0 0 25px rgba(255, 74, 74, 0.4); width: 380px; border-radius: 8px; padding: 20px; text-align: center; }
+
+        /* MARCO EXCLUSIVO DE VENTA / LICENCIA COMERCIAL */
+        .commercial-pitch-banner {
+            background: linear-gradient(90deg, #102126 0%, #061114 100%);
+            border: 1px solid var(--hud-border-cyan);
+            border-radius: 4px;
+            padding: 8px 14px;
+            font-size: 11px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             grid-column: 1 / -1;
-            box-shadow: 0 0 15px rgba(0, 225, 255, 0.2);
-            z-index: 50;
-        }
-        .pitch-text h3 { font-size: 12px; color: #fff; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .pitch-text p { font-size: 10px; color: #8ab4bc; }
-
-        /* MODAL POPUPS (ALERTA DE SISTEMA / COMPRA EXITOSA) */
-        .game-popup-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .game-modal-box {
-            background: #0d1612;
-            border: 2px solid var(--border-cyan);
-            box-shadow: 0 0 30px rgba(0, 225, 255, 0.3);
-            width: 360px;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-        }
-        .game-modal-box.alert-box {
-            border-color: var(--border-red);
-            box-shadow: 0 0 30px rgba(255, 74, 74, 0.3);
-            background: #160a0a;
+            box-shadow: 0 0 10px rgba(0, 225, 255, 0.15);
         }
     </style>
 </head>
 <body>
 
-    <!-- CABECERA OPERACIONAL DE TELEMETRÍA -->
     <header class="axiom-header">
         <div class="title-container">
             <h1>AXIOM FLORA</h1>
-            <span>POWERED BY AXIOM BARE-METRIC</span>
+            <span>EL IMPERIO VERDE INDEPENDIENTE // STREET BOTANY</span>
         </div>
-        <div class="latency-badge">LATENCY: <span id="lbl-real-latency">1.5ms FLAT</span></div>
+        <div class="global-telemetry-bar">
+            <div class="telemetry-node">REP CALLEJERA: <strong id="lbl-rep" style="color:var(--hud-border-amber);">1.00</strong></div>
+            <div class="telemetry-node">BALANCE: <strong id="lbl-coins" style="color:var(--hud-border-green);">12500.00 AC</strong></div>
+            <div class="telemetry-node">P2P SYNC: <span style="color:var(--hud-border-cyan);">1.5ms FLAT</span></div>
+        </div>
     </header>
 
-    <!-- VIEWPORT DE VIDEOJUEGO -->
-    <main class="game-master-viewport">
+    <main class="game-canvas-master">
         
-        <!-- PANEL IZQUIERDO: CATALOGO DE SEMILLAS Y MENTOR -->
         <section class="hud-panel">
-            <div class="panel-header"><span style="color:var(--border-green);">🛒 UNCENSORED MARKET (100% FREE)</span><span>V26</span></div>
-            <div class="panel-body">
-                <div class="wallet-text-display">WALLET: <span id="dom-coins">12,500 AC</span></div>
-                
-                <div class="market-grid">
-                    <div class="catalog-item-card active" onclick="selectCatalogItem('cannabis', 10, this)">
-                        <span class="catalog-img">🌿</span>
-                        <div style="font-size:9px; font-weight:bold;">MEDICAL CANNABIS</div>
-                        <div style="color:var(--border-green); font-size:10px;">10 AC</div>
+            <div class="panel-header-anchor">
+                <span>🛒 UNCENSORED MARKET (100% FREE)</span>
+                <span style="color:#4a6355;">CATALOG_V1</span>
+            </div>
+            <div class="panel-body-scroll">
+                <div class="market-grid-container">
+                    <div class="plant-catalog-card selected" onclick="selectCatalogItem('cannabis', 10, this)">
+                        <div class="card-image-emulation"><span>🌿</span></div>
+                        <div class="card-meta-title">MEDICAL CANNABIS</div>
+                        <div class="card-price-tag">10.00 AC</div>
                     </div>
-                    <div class="catalog-item-card" onclick="selectCatalogItem('amazonian', 25, this)">
-                        <span class="catalog-img">🌵</span>
-                        <div style="font-size:9px; font-weight:bold;">AMAZONIAN EXOTIC</div>
-                        <div style="color:var(--border-green); font-size:10px;">25 AC</div>
+                    <div class="plant-catalog-card" onclick="selectCatalogItem('amazonian', 25, this)">
+                        <div class="card-image-emulation"><span>🌵</span></div>
+                        <div class="card-meta-title">AMAZONIAN EXOTIC</div>
+                        <div class="card-price-tag">25.00 AC</div>
                     </div>
-                    <div class="catalog-item-card" onclick="selectCatalogItem('shamanic', 50, this)">
-                        <span class="catalog-img">🍄</span>
-                        <div style="font-size:9px; font-weight:bold;">SHAMANIC BOTANY</div>
-                        <div style="color:var(--border-green); font-size:10px;">50 AC</div>
+                    <div class="plant-catalog-card" onclick="selectCatalogItem('shamanic', 50, this)">
+                        <div class="card-image-emulation"><span>🍄</span></div>
+                        <div class="card-meta-title">SHAMANIC BOTANY</div>
+                        <div class="card-price-tag">50.00 AC</div>
                     </div>
-                    <div class="catalog-item-card" onclick="selectCatalogItem('nutrients', 15, this)">
-                        <span class="catalog-img">🧪</span>
-                        <div style="font-size:9px; font-weight:bold;">LEFTOVER SOIL</div>
-                        <div style="color:var(--border-green); font-size:10px;">15 AC</div>
+                    <div class="plant-catalog-card" onclick="selectCatalogItem('nutrients', 15, this)">
+                        <div class="card-image-emulation"><span>🧪</span></div>
+                        <div class="card-meta-title">LEFTOVER SOIL</div>
+                        <div class="card-price-tag">15.00 AC</div>
                     </div>
                 </div>
 
-                <button class="btn-ui-touch" id="btn-plant-seed">PLANT SEED (GERMINAR)</button>
+                <button class="btn-action-spec" id="btn-deploy-seed-action" style="width: 100%;">
+                    PLANT SEED (GERMINAR)
+                </button>
 
-                <!-- AI MENTOR TOOLTIP SIEMPRE VISIBLE -->
-                <div class="ai-mentor-tooltip">
-                    <span style="font-size:18px;">🤖</span>
-                    <div>
-                        <strong style="color:var(--border-cyan); display:block; margin-bottom:2px;">AI MENTOR SYSTEM:</strong>
-                        <span id="txt-ai-speech">"Planta una semilla para iniciar el ciclo biológico. Si activas el visor AR, mapearemos la geometría directamente sobre tu entorno real mediante coeficientes esféricos."</span>
+                <div style="border-top: 1px dashed rgba(57, 229, 138, 0.2); padding-top: 8px;">
+                    <div style="font-size:9px; color:var(--hud-border-cyan); font-weight:bold; margin-bottom:4px;">🗺️ AXIOM PLANT MAPS (SPATIAL HASH GRID)</div>
+                    <div class="map-interactive-module">
+                        <canvas id="mini-map-canvas"></canvas>
+                        <div class="map-floating-tags" id="lbl-gps-node">CELL: WGS84_H_0_0</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PANEL CENTRAL: RENDER DE AR REAL / FEED DE HARDWARE -->
-        <section class="ar-viewframe-center" id="ar-viewport-container">
-            <video id="ar-camera-stream" autoplay playsinline muted></video>
-            <canvas id="ar-gfx-layer"></canvas>
+        <section class="ar-viewframe-center" id="center-zone-parent">
+            <video id="ar-video-feed" autoplay playsinline muted></video>
+            <canvas id="ar-canvas-layer"></canvas>
 
             <div class="ar-hud-overlay">
-                <div class="ar-center-hologram-controls">
-                    <div>AR CORE: <span style="color:var(--border-green);" id="lbl-probe-status">ENVIRONMENT SCANNER STANDBY</span></div>
-                    <button class="btn-ar-toggle" id="btn-view-ar">VIEW IN AR (CÁMARA)</button>
+                <div class="ar-center-hologram-controls" style="width: 100%;">
+                    <div>LIGHT MATRIX STATUS: <span style="color:var(--hud-border-green);">ARMÓNICOS ESFÉRICOS OK</span></div>
+                    <button class="btn-ar-toggle" id="btn-request-ar-camera" onclick="initiateHardwareARCamera()">
+                        VIEW IN AR (CAMARA)
+                    </button>
+                </div>
+                <div class="ar-center-hologram-controls" style="justify-content: center; font-weight: bold;">
+                    <span id="btn-hud-clone-status" style="color:#4a6355;">BIOLOGICAL CLONING WINDOW: CLOSED</span>
                 </div>
             </div>
         </section>
 
-        <!-- PANEL DERECHO: MONITOR GENÉTICO Y LIQUIDACIÓN P2P -->
-        <section class="hud-panel cyan-panel">
-            <div class="panel-header"><span style="color:var(--border-cyan);">🌱 ACTIVE GENETIC SIMULATION</span><span id="dom-plant-id">ID: #AX-88192</span></div>
-            <div class="panel-body">
+        <section class="hud-panel panel-amber">
+            <div class="panel-header-anchor amber-text">
+                <span>🌱 ACTIVE GENETIC SIMULATION</span>
+                <span id="lbl-specimen-id-tag">ID: STANDBY</span>
+            </div>
+            <div class="panel-body-scroll">
                 
-                <!-- CONTADORES CLAVE DE PETICIÓN -->
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                    <div class="metric-progress-wrapper" style="text-align:center;">
-                        <span style="color:#4a6355; font-size:8px; display:block;">DÍAS CRECIMIENTO</span>
-                        <strong style="font-size:14px; color:#fff;" id="dom-growth-days">0D</strong>
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header"><span>SALUD BIOLÓGICA (VeroHealth)</span><span id="txt-hud-health">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill" id="bar-hud-health"></div></div>
+                </div>
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header"><span>HIDRATACIÓN SUSTRATO</span><span id="txt-hud-hydrate" style="color:var(--hud-border-cyan);">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill fill-cyan" id="bar-hud-hydrate"></div></div>
+                </div>
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header"><span>ESTRÉS LUMÍNICO / TÉRMICO</span><span id="txt-hud-stress" style="color:var(--hud-border-amber);">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill fill-amber" id="bar-hud-stress"></div></div>
+                </div>
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header"><span>CURADO EN BOTES (HUMEDAD)</span><span id="txt-hud-cure" style="color:var(--hud-border-red);">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill fill-red" id="bar-hud-cure"></div></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px;">
+                    <div class="hud-metric-row" style="padding:4px; text-align:center;">
+                        <span style="color:#4a6355; font-size:8px;">GENÉTICA ACTUAL</span>
+                        <strong id="txt-hud-sex">NONE</strong>
                     </div>
-                    <div class="metric-progress-wrapper" style="text-align:center;">
-                        <span style="color:#4a6355; font-size:8px; display:block;">GENÉTICA ACTUAL</span>
-                        <strong style="font-size:11px; color:var(--border-green);" id="dom-genetic-sex">DETERMINED FEMALE</strong>
+                    <div class="hud-metric-row" style="padding:4px; text-align:center;">
+                        <span style="color:#4a6355; font-size:8px;">TERPENE MULTIPLIER</span>
+                        <strong id="txt-hud-terpenes" style="color:var(--hud-border-cyan);">1.0x</strong>
                     </div>
                 </div>
 
-                <!-- BARRAS DE ESTADO MUTANTES -->
-                <div class="metric-progress-wrapper">
-                    <div class="metric-header-info"><span>SALUD BIOLÓGICA (VeroHealth)</span><span id="txt-health">100%</span></div>
-                    <div class="metric-track"><div class="metric-fill" id="fill-health" style="width:100%;"></div></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                    <button class="btn-action-spec" id="btn-hud-water" disabled>REGAR CULTIVO</button>
+                    <button class="btn-action-spec" id="btn-hud-air" disabled>AIREAR BOTE</button>
                 </div>
 
-                <div class="metric-progress-wrapper">
-                    <div class="metric-header-info"><span>HIDRATACIÓN DEL SUSTRATO</span><span id="txt-hydrate">85%</span></div>
-                    <div class="metric-track"><div class="metric-fill cyan-fill" id="fill-hydrate" style="width:85%;"></div></div>
-                </div>
+                <button class="btn-action-spec" id="btn-hud-sell-p2p" style="border-color:var(--hud-border-cyan); background:rgba(0,225,255,0.03);" disabled>
+                    SELL IN P2P MARKET (LIQUIDAR)
+                </button>
 
-                <div class="metric-progress-wrapper">
-                    <div class="metric-header-info"><span>ESTRÉS LUMÍNICO / TÉRMICO</span><span id="txt-stress">12%</span></div>
-                    <div class="metric-track"><div class="metric-fill amber-fill" id="fill-stress" style="width:12%;"></div></div>
+                <div style="border-top: 1px dashed rgba(255, 170, 0, 0.2); padding-top: 6px; margin-top: auto;">
+                    <div style="font-size:9px; color:var(--hud-border-amber); font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between;">
+                        <span>🏆 DISPLAY PROFILE BADGES</span>
+                        <span id="lbl-badge-count-ratio">0/4 UNLOCKED</span>
+                    </div>
+                    <div class="badges-profile-grid">
+                        <div class="badge-interactive-slot" id="slot-badge-2"><div class="badge-icon-frame">🥇</div><div class="badge-label-title">HARDCORE GROWER</div></div>
+                        <div class="badge-interactive-slot" id="slot-badge-3"><div class="badge-icon-frame">🛰️</div><div class="badge-label-title">MAESTRO CLONADOR</div></div>
+                        <div class="badge-interactive-slot" id="slot-badge-1"><div class="badge-icon-frame">💀</div><div class="badge-label-title">GERANIUM KILLER</div></div>
+                        <div class="badge-interactive-slot" id="slot-badge-0"><div class="badge-icon-frame">🍄</div><div class="badge-label-title">REY DEL MOHO</div></div>
+                    </div>
                 </div>
-
-                <button class="btn-ui-touch" id="btn-water-crop" style="padding:10px;">REGAR SUSTRAMENTO</button>
-                
-                <button class="btn-ui-touch btn-cyan" id="btn-sell-p2p" style="margin-top:auto;">SELL IN P2P MARKET (LIQUIDAR)</button>
             </div>
         </section>
 
-        <!-- BANNER DE LICENCIA COMERCIAL Y TRACCIÓN DE INVERSIÓN -->
-        <footer class="commercial-pitch-anchor">
-            <div class="pitch-text">
-                <h3>Commercial License Available</h3>
-                <p>Full version includes: real genetics simulation + true WebXR AR + optimized Rust backend + P2P sync.</p>
+        <section class="bottom-hustle-terminal">
+            <ul class="rust-backend-stream" id="rust-network-terminal-stream">
+                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[RUST_BACKEND]</span> Nodo síncrono activo. Barrido BLE inicializado con éxito.</li>
+            </ul>
+
+            <div class="ai-street-coach-card">
+                <div style="font-size:9px; font-weight:bold; color:var(--hud-border-cyan);">🤖 AI MENTOR // BOTANICAL KNOWLEDGE</div>
+                <div class="coach-speech-bubble" id="txt-ai-coach-bubble">
+                    "Buenas jefe. El mercado está listo. Compra una semilla en el catálogo de la izquierda y mira los Días de Crecimiento subir. Si activas la cámara AR, proyectaremos los vectores de la planta en tu mesa real."
+                </div>
             </div>
-            <button class="btn-ui-touch btn-cyan" onclick="triggerCommercialFormRedirect()" style="padding:10px 20px;">Request Commercial License</button>
+        </section>
+
+        <div style="grid-column: 1 / -1; background:rgba(0,0,0,0.4); border:1px solid #1b3527; padding:8px; border-radius:4px; display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:-5px; z-index:10;">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+                <label style="font-size:9px; color:#4a6355;">VELOCIDAD GPS MULA (MESSENGER): <span id="lbl-speed-val" style="color:var(--hud-border-amber);">0 km/h</span></label>
+                <input type="range" id="sim-speed" min="0" max="50" value="0" style="accent-color:var(--hud-border-amber); width:100%;">
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+                <label style="font-size:9px; color:#4a6355;">DENSIDAD ENTORNO (REGIONAL PESTS): <span id="lbl-pests-val" style="color:var(--hud-border-red);">5%</span></label>
+                <input type="range" id="sim-pests" min="0" max="100" value="5" style="accent-color:var(--hud-border-red); width:100%;">
+            </div>
+        </div>
+
+        <footer class="commercial-pitch-banner">
+            <div style="font-weight: bold; color: #fff; letter-spacing: 0.5px;">⚠️ AXION SYSTEMS COMMERCIAL ENGINE // DEMO VERSION</div>
+            <div style="color: var(--hud-border-cyan); font-weight: bold; text-shadow: 0 0 5px rgba(0,225,255,0.4);">
+                COMMERCIAL LICENSE AVAILABLE — Full version with real genetics + true AR + P2P sync &rarr; Contact me
+            </div>
         </footer>
 
     </main>
 
-    <!-- POPUP DE MODALES INTERACTIVOS (MONEDAS / ROASTING) -->
-    <div class="game-popup-overlay" id="popup-manager-overlay">
-        <div class="game-modal-box" id="popup-content-frame">
-            <div id="popup-icon" style="font-size:32px; margin-bottom:10px;">💰</div>
-            <h2 id="popup-title" style="color:#fff; font-size:14px; text-transform:uppercase; margin-bottom:6px;">TRANSACTION SETTLED</h2>
-            <p id="popup-text" style="color:#a3ffd0; font-size:12px; margin-bottom:15px; line-height:15px; font-weight:bold;"></p>
-            <button class="btn-ui-touch" onclick="closeActivePopup()" style="padding:6px 20px; font-size:10px; width:100%;">ENTENDIDO</button>
+    <div class="roast-popup-overlay" id="public-roast-popup">
+        <div class="roast-modal">
+            <div style="font-size: 36px; color: var(--hud-border-red); margin-bottom: 8px;">⚠️</div>
+            <h2 style="color: #fff; font-size: 14px; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase;">PUBLIC ROASTING TRIGGERED!</h2>
+            <p id="roast-popup-message" style="color: #ffb3b3; font-size: 12px; margin-bottom: 18px; font-weight: bold; line-height: 15px;"></p>
+            <button class="btn-action-spec" id="btn-close-roast" style="background:#401515; border-color:var(--hud-border-red); color:#fff; padding:6px 20px;">OK</button>
         </div>
     </div>
 
-    <!-- CORE RUNTIME MOTOR DE DATOS EN JAVASCRIPT VANILLA -->
     <script>
-        const GAME_STATE = {
-            player: { coins: 12500.0 },
-            plant: {
-                active: true, // 1 planta cargada por defecto al iniciar la demo
-                id: 88192,
-                type: "cannabis",
-                geneticSex: "Female",
-                growthDays: 12,
-                health: 1.0,
-                hydration: 0.85,
-                stress: 0.12,
-                lastChecked: Math.floor(Date.now() / 1000)
-            },
+        const ENGINE_STATE = {
+            player: { axiomCoins: 12500.0, streetReputation: 1.0, bitmask: new Uint32Array(8), unlockedBadges: [false, false, false, false] },
+            plant: { active: false, id: 0, type: "none", geneticSex: "None", tier: 1, growthDays: 0, healthLevel: 1.0, hydrationLevel: 1.0, stressLevel: 0.0, pestInfectionRatio: 0.0, moistureContent: 0.0, chlorophyllDecay: 0.0, terpeneMultiplier: 1.0, isCured: false, isAeterna: false, lastCheckedTimestamp: 0 },
+            simulation: { muleSpeed: 0, regionalPests: 5, baseMarketPrice: 120 },
             selectedItem: { type: "cannabis", cost: 10 }
         };
 
-        // SELECCIÓN DE ITEMS DEL CATÁLOGO
-        function selectCatalogItem(type, cost, element) {
-            document.querySelectorAll('.catalog-item-card').forEach(c => c.classList.remove('active'));
-            element.classList.add('active');
-            GAME_STATE.selectedItem.type = type;
-            GAME_STATE.selectedItem.cost = cost;
-            document.getElementById('txt-ai-speech').innerText = `"Has fijado el objetivo en [${type.toUpperCase()}]. Pulsa germinar para inyectar su cadena de ADN en la granja virtual."`;
+        const EvaporationBaseRate = 0.015;
+        const GrowthIntervalSecs = 1;
+
+        function logToRustNetwork(system, text, type) {
+            const stream = document.getElementById('rust-network-terminal-stream');
+            const timeStr = new Date().toTimeString().split(' ')[0];
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="t-time">[${timeStr}]</span><span class="t-tag ${type}">[${system}]</span>${text}`;
+            stream.appendChild(li);
+            stream.scrollTop = stream.scrollHeight;
+            if (stream.children.length > 25) stream.removeChild(stream.children[0]);
         }
 
-        // ACCIÓN: GERMINAR NUEVA SEMILLA
-        document.getElementById('btn-plant-seed').addEventListener('click', () => {
-            const p = GAME_STATE.plant;
-            const item = GAME_STATE.selectedItem;
+        function selectCatalogItem(type, cost, element) {
+            triggerAudioTone();
+            document.querySelectorAll('.plant-catalog-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            ENGINE_STATE.selectedItem.type = type;
+            ENGINE_STATE.selectedItem.cost = cost;
+            logToRustNetwork("MARKET_P2P", `Fijado objetivo: [${type.toUpperCase()}]. Coste de transacción: ${cost} AC.`, "info");
+        }
 
-            if (GAME_STATE.player.coins < item.cost) {
-                showGamePopup("⚠️", "TRANSACCIÓN FALLIDA", "No dispones de suficientes Axiom Coins para adquirir esta semilla.", true);
+        document.getElementById('btn-deploy-seed-action').addEventListener('click', () => {
+            initWebAudioContextDriver();
+            triggerAudioTone();
+            const player = ENGINE_STATE.player;
+            const item = ENGINE_STATE.selectedItem;
+            
+            if (player.axiomCoins < item.cost) {
+                logToRustNetwork("ANTI_CHEAT", "Transacción rechazada: Saldo de Axiom Coins insuficiente.", "bad");
+                document.getElementById('txt-ai-coach-bubble').innerText = '"Oye socio, vas limpio por el barrio. No te quedan Axiom Coins para pagar este espécimen. Mueve la mola a pie o vende material rápido."';
                 return;
             }
 
-            // Descontar saldo del marcador en tiempo real
-            GAME_STATE.player.coins -= item.cost;
+            player.axiomCoins -= item.cost;
             
+            const p = ENGINE_STATE.plant;
             p.active = true;
-            p.id = Math.floor(10000 + Math.random() * 89999);
+            p.id = Math.floor(100000 + Math.random() * 899999);
             p.type = item.type;
-            p.growthDays = 0; // Reset a cero para el crecimiento en tiempo real
-            p.health = 1.0;
-            p.hydration = 1.0;
-            p.stress = 0.0;
+            p.growthDays = 0;
+            p.healthLevel = 1.0;
+            p.hydrationLevel = 1.0;
+            p.stressLevel = 0.0;
+            p.pestInfectionRatio = 0.0;
+            p.moistureContent = 0.0;
+            p.chlorophyllDecay = 0.0;
+            p.terpeneMultiplier = 1.0;
+            p.isCured = false;
+            p.lastCheckedTimestamp = Math.floor(Date.now() / 1000);
+
             p.geneticSex = Math.random() > 0.45 ? "Female" : "Male";
+            p.tier = item.cost >= 25 ? 2 : 1;
 
-            document.getElementById('txt-ai-speech').innerText = `"ADN decodificado de forma aleatoria: Ha brotado un ejemplar [${p.geneticSex.toUpperCase()}]. Monitorea su hidratación para evitar el estrés."`;
+            logToRustNetwork("RUST_SERVER", `Inyección de ADN completada. ID: #AX-${p.id}. Genética: ${p.geneticSex.toUpperCase()}`, "good");
             
-            showGamePopup("🌱", "SEMILLA DEPLOYED", `Has inyectado un ejemplar de ${item.type.toUpperCase()} (ID: #AX-${p.id}) de forma síncrona en el nodo de red.`, false);
-            syncDOM();
+            document.getElementById('btn-hud-water').disabled = false;
+            document.getElementById('btn-hud-sell-p2p').disabled = false;
+            document.getElementById('btn-hud-air').disabled = true;
+
+            if (p.geneticSex === "Female") {
+                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL WINDOW: OPEN (READY TO CLONE)";
+                document.getElementById('btn-hud-clone-status').style.color = "var(--hud-border-green)";
+            } else {
+                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL WINDOW: WARNING (MALE POLLEN RISK)";
+                document.getElementById('btn-hud-clone-status').style.color = "var(--hud-border-amber)";
+            }
+
+            syncVisualDOM();
         });
 
-        // ACCIÓN: REGAR
-        document.getElementById('btn-water-crop').addEventListener('click', () => {
-            if (!GAME_STATE.plant.active) return;
-            GAME_STATE.plant.hydration = Math.min(1.0, GAME_STATE.plant.hydration + 0.25);
-            GAME_STATE.plant.stress = Math.max(0.0, GAME_STATE.plant.stress - 0.1);
-            syncDOM();
+        document.getElementById('btn-hud-water').addEventListener('click', () => {
+            triggerAudioTone();
+            if (!ENGINE_STATE.plant.active || ENGINE_STATE.plant.healthLevel <= 0) return;
+            ENGINE_STATE.plant.hydrationLevel = Math.min(1.0, ENGINE_STATE.plant.hydrationLevel + 0.35);
+            logToRustNetwork("CULTIVO_AR", "Sustrato hidratado. Absorción de nutrientes estabilizada.", "good");
+            syncVisualDOM();
         });
 
-        // ACCIÓN: VENTA EN MERCADO P2P (POPUP CON DINERO GANADO REAL)
-        document.getElementById('btn-sell-p2p').addEventListener('click', () => {
-            const p = GAME_STATE.plant;
+        document.getElementById('btn-hud-air').addEventListener('click', () => {
+            triggerAudioTone();
+            const p = ENGINE_STATE.plant;
+            if (!p.active || p.moistureContent === 0) return;
+            p.moistureContent = Math.max(0.12, p.moistureContent - 0.25);
+            logToRustNetwork("CURING_ROOM", "Frasco abierto: Humedad purgada para mitigar moho.", "info");
+            syncVisualDOM();
+        });
+
+        document.getElementById('btn-hud-sell-p2p').addEventListener('click', () => {
+            triggerAudioTone();
+            const p = ENGINE_STATE.plant;
+            const sim = ENGINE_STATE.simulation;
             if (!p.active) return;
 
-            let basePrice = p.type === 'shamanic' ? 350 : p.type === 'amazonian' ? 180 : 120;
-            let finalGain = basePrice * (1 + p.growthDays * 0.1) * p.health;
+            let payout = sim.baseMarketPrice * p.terpeneMultiplier * ENGINE_STATE.player.streetReputation * 10;
             
             if (p.geneticSex === "Male") {
-                finalGain = 12; // Penalización severa por macho sin resina
+                payout = 15;
+                logToRustNetwork("BROKER_WARN", "Has liquidado un cultivo Macho sin resina. Penalización de valor aplicada.", "bad");
             }
 
-            GAME_STATE.player.coins += finalGain;
-            
-            showGamePopup("💰", "P2P TRANSACTION SUCCESS", `Lote comercial liquidado de forma segura en la red del distrito. Has ganado +${finalGain.toFixed(2)} Axiom Coins.`, false);
-            
-            // Limpiar ranura tras la venta
-            p.active = false;
-            p.growthDays = 0;
-            p.health = 0;
-            p.hydration = 0;
-            p.stress = 0;
-            p.geneticSex = "None";
+            if (sim.muleSpeed > 30) {
+                payout *= 0.5;
+                logToRustNetwork("LOGISTICS", "Calidad biológica mermada un 50% por exceder los 30 km/h en el transporte.", "bad");
+            }
 
-            syncDOM();
+            ENGINE_STATE.player.axiomCoins += payout;
+            logToRustNetwork("MARKET_P2P", `Lote liquidado de forma segura. Wallet inyectada con +${payout.toFixed(2)} AC.`, "good");
+
+            p.active = false;
+            document.getElementById('btn-hud-water').disabled = true;
+            document.getElementById('btn-hud-sell-p2p').disabled = true;
+            document.getElementById('btn-hud-air').disabled = true;
+            document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL CLONING WINDOW: CLOSED";
+            document.getElementById('btn-hud-clone-status').style.color = "#4a6355";
+
+            syncVisualDOM();
         });
 
-        // BUCLE BIOLÓGICO NO LINEAL EN TIEMPO REAL ($O(1)$ EVALUACIÓN LAZY)
-        function runBiologicalEngineLoop() {
-            const p = GAME_STATE.plant;
-            if (!p.active) return;
+        function evaluateBiologicalLazyPipeline() {
+            const p = ENGINE_STATE.plant;
+            if (!p.active || p.healthLevel <= 0) return;
 
-            // Avanzar días de crecimiento de la planta en tiempo real
-            p.growthDays += 1;
+            const now = Math.floor(Date.now() / 1000);
+            let delta = now - p.lastCheckedTimestamp;
+            if (delta <= 0) delta = 1;
 
-            // Simular drenaje hídrico
-            p.hydration = Math.max(0.0, p.hydration - 0.03);
+            const simSpeed = parseFloat(document.getElementById('sim-speed').value);
+            const simPests = parseFloat(document.getElementById('sim-pests').value);
 
-            if (p.hydration < 0.3) {
-                p.stress = Math.min(1.0, p.stress + 0.08);
-                p.health = Math.max(0.0, p.health - 0.05);
+            p.growthDays += 1; // Contador de crecimiento real interactivo
+
+            p.hydrationLevel = Math.max(0.0, p.hydrationLevel - (EvaporationBaseRate * delta));
+            if (simPests > 20) {
+                p.pestInfectionRatio = Math.min(1.0, p.pestInfectionRatio + (0.01 * delta));
+            }
+
+            if (p.hydrationLevel < 0.20 || p.pestInfectionRatio > 0.40) {
+                p.stressLevel = Math.min(1.0, p.stressLevel + (0.08 * delta));
+                p.healthLevel = Math.max(0.0, p.healthLevel - (0.06 * delta));
             } else {
-                p.stress = Math.max(0.0, p.stress - 0.02);
-                p.health = Math.min(1.0, p.health + 0.01);
+                p.stressLevel = Math.max(0.0, p.stressLevel - (0.04 * delta));
+                p.healthLevel = Math.min(1.0, p.healthLevel + (0.02 * delta));
             }
 
-            // Alerta de Roasting si la planta entra en estado crítico (Geranium Killer)
-            if (p.health <= 0 && p.health + 0.05 > 0) {
-                p.health = 0;
-                showGamePopup("💀", "PUBLIC ROASTING TRIGGERED!", '"GERANIUM KILLER" // Has dejado colapsar tu espécimen activo en tu patio virtual.', true);
-                document.getElementById('txt-ai-speech').innerText = '"¡Eres la desgracia de tu abuela, socio! Has dejado morir el cultivo. Todo el vecindario se está riendo de tu alerta pública."';
+            if (p.stressLevel > 0.80 && p.geneticSex === "Female") {
+                p.geneticSex = "Hermaphrodite";
+                logToRustNetwork("GENETIC_MUTATION", "Alerta de inestabilidad: Cepa mutada a Hermafrodita por estrés hídrico.", "bad");
             }
 
-            syncDOM();
+            if (p.hydrationLevel === 0 && !p.isCured) {
+                if (p.moistureContent === 0) {
+                    p.moistureContent = 0.70;
+                    document.getElementById('btn-hud-air').disabled = false;
+                    logToTerminalCoach('"¡Ojo jefe! Tu planta se ha secado y ha pasado al bote de curado automáticamente. Monitorea la humedad o se te pudrirá el lote entero."');
+                } else {
+                    p.moistureContent = Math.min(1.0, p.moistureContent + (0.04 * delta));
+                    p.chlorophyllDecay = Math.min(1.0, p.chlorophyllDecay + (0.06 * delta));
+
+                    if (p.moistureContent > 0.85) {
+                        p.healthLevel = 0;
+                        triggerSavageAchievement(0, true);
+                    } else if (p.chlorophyllDecay >= 0.90) {
+                        p.isCured = true;
+                        p.terpeneMultiplier = 3.0;
+                        logToRustNetwork("CURING_ROOM", "Curado completado con éxito. Perfil de terpenos multiplicado x3.", "good");
+                        triggerSavageAchievement(2, false);
+                    }
+                }
+            }
+
+            if (p.healthLevel <= 0) {
+                p.healthLevel = 0;
+                triggerSavageAchievement(1, true);
+                logToRustNetwork("PERMADEATH", `Instancia #AX-${p.id} colapsada. Niagara Particles despachadas al mapa real.`, "bad");
+            }
+
+            p.lastCheckedTimestamp = now;
+            syncVisualDOM();
         }
 
-        // CONTROLADOR DE POPUPS
-        function showGamePopup(icon, title, text, isAlert) {
-            const overlay = document.getElementById('popup-manager-overlay');
-            const box = document.getElementById('popup-content-frame');
-            document.getElementById('popup-icon').innerText = icon;
-            document.getElementById('popup-title').innerText = title;
-            document.getElementById('popup-text').innerText = text;
+        function triggerSavageAchievement(index, isBad) {
+            const wordIdx = Math.floor(index / 32);
+            const bitIdx = index % 32;
+
+            if ((ENGINE_STATE.player.bitmask[wordIdx] & (1 << bitIdx)) === 0) {
+                ENGINE_STATE.player.bitmask[wordIdx] |= (1 << bitIdx);
+                ENGINE_STATE.player.unlockedBadges[index] = true;
+
+                const slot = document.getElementById(`slot-badge-${index}`);
+                slot.classList.add(isBad ? 'unlocked-bad' : 'unlocked-good');
+
+                if (isBad) {
+                    ENGINE_STATE.player.streetReputation = Math.max(-1.0, ENGINE_STATE.player.streetReputation - 0.5);
+                    const modal = document.getElementById('public-roast-popup');
+                    const msg = document.getElementById('roast-popup-message');
+                    modal.style.display = 'flex';
+                    msg.innerText = index === 1 ? `"PUBLIC ROASTING TRIGGERED! GERANIUM KILLER"` : `"PUBLIC ROASTING TRIGGERED! REY DEL MOHO"`;
+                    logToTerminalCoach(index === 1 ? '"¡Vaya manos de trapo, socio! Has dejado colapsar tu planta. Todo el barrio está viendo tu notificación de Geranium Killer en los canales locales."' : '"¡Menuda liada! Tus botes han cogido moho por no airearlos a tiempo. Reputación por los suelos."');
+                } else {
+                    ENGINE_STATE.player.axiomCoins += 1500;
+                    ENGINE_STATE.player.streetReputation = Math.min(2.0, ENGINE_STATE.player.streetReputation + 0.3);
+                }
+
+                if (ENGINE_STATE.player.unlockedBadges[2] && !ENGINE_STATE.plant.isAeterna) {
+                    ENGINE_STATE.plant.isAeterna = true;
+                    logToRustNetwork("HOLY_GRAIL", "Mallas cuánticas activas: AXIOM AETERNA desbloqueada en la escena AR.", "good");
+                    logToTerminalCoach('"¡Increíble, jefe! Has desbloqueado la Axiom Aeterna, el santo grial de la botánica callejera. Sus filamentos translúcidos ya brillan en tu pantalla central."');
+                }
+
+                syncVisualDOM();
+            }
+        }
+
+        function logToTerminalCoach(text) {
+            document.getElementById('txt-ai-coach-bubble').innerText = text;
+        }
+
+        document.getElementById('btn-close-roast').addEventListener('click', () => {
+            document.getElementById('public-roast-popup').style.display = 'none';
+        });
+
+        function syncVisualDOM() {
+            const p = ENGINE_STATE.plant;
+            const player = ENGINE_STATE.player;
+            const sim = ENGINE_STATE.simulation;
+
+            document.getElementById('lbl-coins').innerText = player.axiomCoins.toFixed(2) + " AC";
+            document.getElementById('lbl-rep').innerText = player.streetReputation.toFixed(2);
+
+            document.getElementById('txt-hud-health').innerText = Math.floor(p.healthLevel * 100) + "%";
+            document.getElementById('bar-hud-health').style.width = (p.healthLevel * 100) + "%";
+            document.getElementById('bar-hud-health').className = `hud-progress-fill ${p.healthLevel < 0.3 ? 'fill-red' : p.healthLevel < 0.7 ? 'fill-amber' : ''}`;
+
+            document.getElementById('txt-hud-hydrate').innerText = Math.floor(p.hydrationLevel * 100) + "%";
+            document.getElementById('bar-hud-hydrate').style.width = (p.hydrationLevel * 100) + "%";
+
+            document.getElementById('txt-hud-stress').innerText = Math.floor(p.stressLevel * 100) + "%";
+            document.getElementById('bar-hud-stress').style.width = (p.stressLevel * 100) + "%";
+
+            document.getElementById('txt-hud-cure').innerText = Math.floor(p.moistureContent * 100) + "%";
+            document.getElementById('bar-hud-cure').style.width = (p.moistureContent * 100) + "%";
+
+            if (p.active) {
+                document.getElementById('txt-hud-sex').innerText = `${p.geneticSex.toUpperCase()} (${p.growthDays}D GROW)`;
+                document.getElementById('txt-hud-sex').style.color = p.geneticSex === "Female" ? "var(--hud-border-green)" : "var(--hud-border-amber)";
+            } else {
+                document.getElementById('txt-hud-sex').innerText = "NONE";
+                document.getElementById('txt-hud-sex').style.color = "#fff";
+            }
             
-            if (isAlert) box.classList.add('alert-box');
-            else box.classList.remove('alert-box');
+            document.getElementById('txt-hud-terpenes').innerText = p.terpeneMultiplier.toFixed(1) + "x";
+            document.getElementById('lbl-specimen-id-tag').innerText = p.active ? `ID: #AX-${p.id}` : "ID: STANDBY";
+
+            let badgesCount = 0;
+            player.unlockedBadges.forEach(b => { if(b) badgesCount++; });
+            document.getElementById('lbl-badge-count-ratio').innerText = `${badgesCount}/4 UNLOCKED`;
             
-            overlay.style.display = 'flex';
+            document.getElementById('lbl-speed-val').innerText = document.getElementById('sim-speed').value + " km/h";
+            document.getElementById('lbl-pests-val').innerText = document.getElementById('sim-pests').value + "%";
+            document.getElementById('lbl-gps-node').innerText = `CELL: ${getSpatialHash(sim.muleSpeed, sim.regionalPests)}`;
         }
 
-        function closeActivePopup() {
-            document.getElementById('popup-manager-overlay').style.display = 'none';
-        }
-
-        function triggerCommercialFormRedirect() {
-            alert("Redirigiendo al servidor seguro de Axiom Systems para la tramitación de la Licencia Comercial (Formulario de adquisición v1.0.26).");
-        }
-
-        // HARDWARE DRIVER: CAPTURA DE CÁMARA PARA REALIDAD AUMENTADA REAL
         async function initiateHardwareARCamera() {
-            const video = document.getElementById('ar-camera-stream');
-            const btn = document.getElementById('btn-view-ar');
-            const label = document.getElementById('lbl-probe-status');
-
+            const video = document.getElementById('ar-video-feed');
+            const btn = document.getElementById('btn-request-ar-camera');
+            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" },
+                    audio: false
+                });
                 video.srcObject = stream;
-                video.style.opacity = "0.65"; // Integrar de fondo
-                btn.innerText = "AR VIEW: ACTIVE";
-                label.innerText = "ARMÓNICOS ESFÉRICOS: PERSISTENTES Persistentes persistent";
-                label.style.color = "var(--border-cyan)";
+                video.style.opacity = "0.75";
+                btn.innerText = "AR CAMERA: ACTIVE";
+                btn.style.borderColor = "var(--hud-border-green)";
+                logToRustNetwork("HARDWARE_AR", "Capa ARCore/ARKit activa: Feed de hardware enlazado de forma síncrona.", "good");
+                initWebAudioContextDriver();
             } catch (err) {
-                video.style.background = "#050e0a";
+                video.style.background = "#040906";
                 btn.innerText = "AR FEED: SIMULATED";
-                label.innerText = "CÁMARA CON BLOQUEO // RENDER HOLOGRÁFICO ACTIVO";
+                logToRustNetwork("HARDWARE_AR", "Cámara de hardware no detectada. Inicializando matriz de simulación cromática.", "info");
+                initWebAudioContextDriver();
             }
         }
-        document.getElementById('btn-view-ar').addEventListener('click', initiateHardwareARCamera);
 
-        // SINCRONIZACIÓN DE COMPONENTES DEL DOM
-        function syncDOM() {
-            const p = GAME_STATE.plant;
-            document.getElementById('dom-coins').innerText = Math.floor(GAME_STATE.player.coins).toLocaleString() + " AC";
-            document.getElementById('dom-growth-days').innerText = p.growthDays + "D";
-            document.getElementById('dom-genetic-sex').innerText = p.active ? `DETERMINED ${p.geneticSex.toUpperCase()}` : "NONE";
-            document.getElementById('dom-plant-id').innerText = p.active ? `ID: #AX-${p.id}` : "ID: STANDBY";
-
-            document.getElementById('txt-health').innerText = Math.floor(p.health * 100) + "%";
-            document.getElementById('fill-health').style.width = (p.health * 100) + "%";
-
-            document.getElementById('txt-hydrate').innerText = Math.floor(p.hydration * 100) + "%";
-            document.getElementById('fill-hydrate').style.width = (p.hydration * 100) + "%";
-
-            document.getElementById('txt-stress').innerText = Math.floor(p.stress * 100) + "%";
-            document.getElementById('fill-stress').style.width = (p.stress * 100) + "%";
-            
-            document.getElementById('btn-hud-sell-p2p').disabled = !p.active;
-            document.getElementById('btn-water-crop').disabled = !p.active || p.health <= 0;
+        let webAudioCtx = null;
+        function initWebAudioContextDriver() {
+            if (webAudioCtx) return;
+            webAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            logToRustNetwork("METASOUNDS", "Motor de audio procedimental Unreal MetaSounds listo.", "info");
         }
 
-        // --- PIPELINE GRÁFICO (RENDER DE PLANTA DE ALTA FIDELIDAD INTERACTIVA) ---
-        const canvas = document.getElementById('ar-gfx-layer');
-        const ctx = canvas.getContext('2d');
+        function triggerAudioTone() {
+            if (!webAudioCtx) return;
+            const osc = webAudioCtx.createOscillator();
+            const gain = webAudioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(840, webAudioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, webAudioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, webAudioCtx.currentTime + 0.12);
+            osc.connect(gain);
+            gain.connect(webAudioCtx.destination);
+            osc.start();
+            osc.stop(webAudioCtx.currentTime + 0.12);
+        }
+
+        const arCanvas = document.getElementById('ar-canvas-layer');
+        const arCtx = arCanvas.getContext('2d');
         const mapCanvas = document.getElementById('mini-map-canvas');
         const mapCtx = mapCanvas.getContext('2d');
 
-        function resizeCanvasViewports() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-            mapCanvas.width = mapCanvas.parentElement.clientWidth;
-            mapCanvas.height = mapCanvas.parentElement.clientHeight;
+        function resizeGraphicViewports() {
+            const parent = document.getElementById('center-zone-parent');
+            arCanvas.width = parent.clientWidth;
+            arCanvas.height = parent.clientHeight;
+
+            const mapParent = mapCanvas.parentElement;
+            mapCanvas.width = mapParent.clientWidth;
+            mapCanvas.height = mapParent.clientHeight;
         }
-        window.addEventListener('resize', resizeCanvasViewports);
-        resizeCanvasViewports();
+        window.addEventListener('resize', resizeGraphicViewports);
+        resizeGraphicViewports();
 
-        function renderGraphicsLoop(time) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const cX = canvas.width / 2;
-            const cY = canvas.height / 2;
-            const p = GAME_STATE.plant;
+        const mockNeighbourNodes = [
+            { x: 35, y: 40, color: "var(--hud-border-green)", icon: "🌿" },
+            { x: 190, y: 90, color: "var(--hud-border-cyan)", icon: "🧪" },
+            { x: 280, y: 30, color: "var(--hud-border-green)", icon: "🌵" }
+        ];
 
-            // Rejilla de oclusión
-            ctx.strokeStyle = "rgba(57, 229, 138, 0.05)";
-            ctx.lineWidth = 1;
-            for(let x=0; x<canvas.width; x+=25) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-            for(let y=0; y<canvas.height; y+=25) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+        function gameGraphicsRenderLoop(timestamp) {
+            arCtx.clearRect(0, 0, arCanvas.width, arCanvas.height);
+            const mX = arCanvas.width / 2;
+            const mY = arCanvas.height / 2;
+            const p = ENGINE_STATE.plant;
 
-            if (p.active && p.health > 0) {
-                const sway = Math.sin(time * 0.003) * 6; // Balanceo dinámico continuo por viento
-                ctx.shadowBlur = 20;
+            arCtx.strokeStyle = "rgba(57, 229, 138, 0.08)";
+            arCtx.lineWidth = 1;
+            const step = 30;
+            for (let x = 0; x < arCanvas.width; x += step) {
+                arCtx.beginPath(); arCtx.moveTo(x, 0); arCtx.lineTo(x, arCanvas.height); arCtx.stroke();
+            }
+            for (let y = 0; y < arCanvas.height; y += step) {
+                arCtx.beginPath(); arCtx.moveTo(0, y); arCtx.lineTo(arCanvas.width, y); arCtx.stroke();
+            }
+
+            if (p.active && p.healthLevel > 0) {
+                const wave = Math.sin(timestamp * 0.003) * 6;
+                arCtx.shadowBlur = 25;
                 
-                // Si limpia los objetivos (simulado con días avanzados), muta a Axiom Aeterna azul neón
-                if (p.growthDays > 30) {
-                    ctx.shadowColor = "var(--border-cyan)";
-                    ctx.fillStyle = "rgba(0, 225, 255, 0.85)";
+                if (p.isAeterna) {
+                    arCtx.shadowColor = "var(--hud-border-cyan)";
+                    arCtx.fillStyle = "rgba(0, 225, 255, 0.85)";
                 } else {
-                    ctx.shadowColor = p.geneticSex === "Female" ? "var(--border-green)" : "var(--border-amber)";
-                    ctx.fillStyle = p.geneticSex === "Female" ? "rgba(57, 229, 138, 0.8)" : "rgba(255, 170, 0, 0.8)";
+                    arCtx.shadowColor = p.geneticSex === "Female" ? "var(--hud-border-green)" : "var(--hud-border-amber)";
+                    arCtx.fillStyle = p.geneticSex === "Female" ? "rgba(57, 229, 138, 0.8)" : "rgba(255, 170, 0, 0.8)";
                 }
 
-                // Escalado físico real en el Canvas en tiempo real según los días
-                const plantRadius = Math.min(50, 10 + (p.growthDays * 1.5) * p.health);
-                ctx.beginPath();
-                ctx.arc(cX + sway, cY, plantRadius, 0, Math.PI * 2);
-                ctx.fill();
+                const radius = Math.min(45, 12 + (p.growthDays * 2.5) * p.healthLevel);
+                arCtx.beginPath();
+                arCtx.arc(mX + wave, mY + 20, radius, 0, Math.PI * 2);
+                arCtx.fill();
+                
+                arCtx.strokeStyle = arCtx.shadowColor;
+                arCtx.lineWidth = 3;
+                arCtx.beginPath();
+                arCtx.moveTo(mX, mY + 120);
+                arCtx.quadraticCurveTo(mX + wave * 1.4, mY + 65, mX + wave, mY + 20);
+                arCtx.stroke();
+                arCtx.shadowBlur = 0;
 
-                // Tallo conductor ciber-orgánico
-                ctx.strokeStyle = ctx.shadowColor;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(cX, cY + 110);
-                ctx.quadraticCurveTo(cX + sway * 1.3, cY + 50, cX + sway, cY);
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-            } else if (p.active && p.health === 0) {
-                // Renderización de partículas Niagara si colapsa
-                ctx.fillStyle = "var(--border-red)";
-                for(let i=0; i<15; i++) {
-                    ctx.fillRect(cX + Math.sin(time*0.01+i)*30, cY + (i*4) - 20, 2, 2);
+                if (p.moistureContent > 0) {
+                    arCtx.strokeStyle = "var(--hud-border-red)";
+                    arCtx.lineWidth = 1;
+                    arCtx.setLineDash([5, 5]);
+                    arCtx.strokeRect(mX - 60 + wave, mY - 30, 120, 160);
+                    arCtx.setLineDash([]);
+                }
+            } else if (p.active && p.healthLevel === 0) {
+                arCtx.fillStyle = "var(--hud-border-red)";
+                for (let i = 0; i < 25; i++) {
+                    const partX = mX + Math.sin(timestamp * 0.012 + i) * (i * 2.5);
+                    const partY = (mY + 40) - (i * 6) + (Math.sin(timestamp * 0.006) * 12);
+                    arCtx.fillRect(partX, partY, 2.5, 2.5);
                 }
             }
 
-            // MINI-MAPA VECTORIAL DE DISTRITOS
-            mapCtx.clearRect(0,0,mapCanvas.width, mapCanvas.height);
-            mapCtx.strokeStyle = "rgba(0, 225, 255, 0.15)";
-            for(let i=0; i<mapCanvas.width; i+=15) {
-                mapCtx.beginPath(); mapCtx.moveTo(i,0); mapCtx.lineTo(i, mapCanvas.height); mapCtx.stroke();
-                mapCtx.beginPath(); mapCtx.moveTo(0,i); mapCtx.lineTo(mapCanvas.width, i); mapCtx.stroke();
-            }
-            mapCtx.fillStyle = "var(--border-cyan)";
-            mapCtx.beginPath(); mapCtx.arc(mapCanvas.width/2, mapCanvas.height/2, 4, 0, Math.PI*2); mapCtx.fill();
+            mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+            const mapCenterX = mapCanvas.width / 2;
+            const mapCenterY = mapCanvas.height / 2;
+            const waveRadius = (timestamp * 0.03) % (mapCanvas.width / 2);
+            
+            mapCtx.strokeStyle = "rgba(0, 225, 255, 0.12)";
+            mapCtx.beginPath(); mapCtx.arc(mapCenterX, mapCenterY, waveRadius, 0, Math.PI * 2); mapCtx.stroke();
 
-            requestAnimationFrame(renderGraphicsLoop);
+            mapCtx.strokeStyle = "rgba(27, 53, 39, 0.3)";
+            for (let i = 0; i < mapCanvas.width; i += 20) {
+                mapCtx.beginPath(); mapCtx.moveTo(i, 0); mapCtx.lineTo(i, mapCanvas.height); mapCtx.stroke();
+                mapCtx.beginPath(); mapCtx.moveTo(0, i); mapCtx.lineTo(mapCanvas.width, i); mapCtx.stroke();
+            }
+
+            mockNeighbourNodes.forEach(node => {
+                mapCtx.fillStyle = node.color;
+                mapCtx.beginPath(); mapCtx.arc(node.x, node.y, 3.5, 0, Math.PI * 2); mapCtx.fill();
+                mapCtx.font = "9px Arial";
+                mapCtx.fillText(node.icon, node.x - 4, node.y - 5);
+            });
+
+            if (Math.floor(timestamp / 350) % 2 === 0) {
+                mapCtx.fillStyle = "var(--hud-border-cyan)";
+                mapCtx.beginPath(); mapCtx.arc(mapCenterX, mapCenterY, 4.5, 0, Math.PI * 2); mapCtx.fill();
+            }
+
+            requestAnimationFrame(gameGraphicsRenderLoop);
         }
 
-        // EJECUCIÓN INICIAL SÍNCRONA
-        setInterval(runBiologicalEngineLoop, 1000); // 1 segundo equivale a 1 ciclo de día en caliente
-        requestAnimationFrame(renderGraphicsLoop);
-        setTimeout(resizeCanvasViewports, 100);
-        syncDOM();
+        document.getElementById('sim-speed').addEventListener('input', (e) => {
+            ENGINE_STATE.simulation.muleSpeed = parseInt(e.target.value);
+            syncVisualDOM();
+        });
+        document.getElementById('sim-pests').addEventListener('input', (e) => {
+            ENGINE_STATE.simulation.regionalPests = parseInt(e.target.value);
+            syncVisualDOM();
+        });
+
+        setInterval(evaluateBiologicalLazyPipeline, GrowthIntervalSecs * 1000);
+        requestAnimationFrame(gameGraphicsRenderLoop);
+        setTimeout(resizeGraphicViewports, 150);
+        syncVisualDOM();
     </script>
 </body>
 </html>
