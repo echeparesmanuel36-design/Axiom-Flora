@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT_AXIOM_FLORA // Core Terminal</title>
+    <style>
+        /* CONFIGURACIÓN CIBER-INDUSTRIAL DE ALTA DENSIDAD */
+        :root {
+            --bg-matrix: #0a0f0d;
+            --panel-bg: #111a16;
+            --border-tech: #1f3a2b;
+            --border-focus: #39e58a;
+            --neon-glow: #22c55e;
+            --neon-alert: #ef4444;
+            --neon-warning: #f59e0b;
+            --text-main: #d1fae5;
+            --text-muted: #64748b;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-matrix);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid var(--border-tech);
+        }
+
+        /* BARRA SUPERIOR: TELEMETRÍA DE RED Y LATENCIA */
+        header {
+            background: linear-gradient(90deg, #0d1612 0%, #16251e 100%);
+            border-bottom: 2px solid var(--border-tech);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-zone h1 {
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: var(--border-focus);
+            text-shadow: 0 0 8px rgba(57, 229, 138, 0.3);
+        }
+
+        .latency-pool {
+            display: flex;
+            gap: 20px;
+        }
+
+        .metric-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed var(--border-tech);
+            padding: 4px 10px;
+            border-radius: 3px;
+        }
+
+        .metric-box span {
+            color: var(--neon-glow);
+            font-weight: bold;
+        }
+
+        /* DISTRIBUCIÓN DE PANELES (GRID OPERACIONAL) */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 320px 1fr 380px;
+            grid-template-rows: 1fr 180px;
+            gap: 10px;
+            padding: 10px;
+            background-image: radial-gradient(var(--border-tech) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-tech);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--border-tech);
+        }
+
+        .panel.active::before {
+            background: var(--border-focus);
+        }
+
+        .panel-title {
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-tech);
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* INTERFAZ DE SIMULACIÓN Y CONTROLES PROS */
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(31, 58, 43, 0.4);
+        }
+
+        .hud-label {
+            color: var(--text-muted);
+        }
+
+        .hud-value {
+            font-weight: bold;
+        }
+
+        .hud-value.alert { color: var(--neon-alert); text-shadow: 0 0 6px rgba(239,68,68,0.4); }
+        .hud-value.warn { color: var(--neon-warning); }
+        .hud-value.good { color: var(--border-focus); }
+
+        /* REJILLA GPS / SPATIAL HASHING (CANVAS) */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #070b09;
+            border: 1px solid var(--border-tech);
+            border-radius: 2px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* BOTONES OPERATIVOS */
+        .btn-tech {
+            background: #162e20;
+            border: 1px solid var(--border-tech);
+            color: var(--text-main);
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            border-radius: 2px;
+            text-align: center;
+        }
+
+        .btn-tech:hover:not(:disabled) {
+            background: var(--border-focus);
+            color: var(--bg-matrix);
+            box-shadow: 0 0 10px rgba(57, 229, 138, 0.4);
+        }
+
+        .btn-tech:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-alert {
+            background: #3a1616;
+            border-color: #5a2222;
+        }
+        .btn-alert:hover:not(:disabled) {
+            background: var(--neon-alert);
+            border-color: var(--neon-alert);
+            color: white;
+            box-shadow: 0 0 10px rgba(239,68,68,0.4);
+        }
+
+        /* CONSOLA DE EVENTOS INFERIOR */
+        .terminal-log {
+            background: #050807;
+            font-size: 11px;
+            padding: 8px;
+            overflow-y: auto;
+            flex: 1;
+            list-style: none;
+        }
+
+        .terminal-log li {
+            margin-bottom: 4px;
+            line-height: 14px;
+        }
+
+        .log-time { color: var(--text-muted); margin-right: 6px; }
+        .log-system { color: #38bdf8; margin-right: 6px; }
+
+        /* CONTROLES DESLIZANTES PARA TELEMETRÍA LOCAL */
+        .range-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: rgba(0,0,0,0.2);
+            padding: 6px;
+            border: 1px solid rgba(31, 58, 43, 0.5);
+        }
+        .range-box label { font-size: 10px; color: var(--text-muted); }
+        .range-box input[type="range"] {
+            width: 100%;
+            accent-color: var(--border-focus);
+            background: #16251e;
+            cursor: pointer;
+        }
+
+        /* CONTENEDOR DE PASOS DE INGENIERÍA (DELTAS BIOLÓGICOS) */
+        .flow-step {
+            border-left: 2px solid var(--border-tech);
+            padding-left: 8px;
+            margin-bottom: 6px;
+        }
+        .flow-step.active {
+            border-left-color: var(--border-focus);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-zone">
+            <h1>PROJECT_AXIOM_FLORA v1.0.26</h1>
+        </div>
+        <div class="latency-pool">
+            <div class="metric-box">GAME THREAD: <span id="t-proc">0.00ms</span></div>
+            <div class="metric-box">DRAW THREAD: <span id="t-chk">0.00ms</span></div>
+            <div class="metric-box">GPU RENDER: <span id="t-tx">0.00ms</span></div>
+            <div class="metric-box">AUDIO/RED: <span id="t-acq">0.00ms</span></div>
+            <div class="metric-box" style="border-style: solid;">LATENCIA TOTAL: <span id="l-total" style="color: var(--border-focus);">0.00ms</span></div>
+        </div>
+    </header>
+
+    <main>
+        <section class="panel active">
+            <div class="panel-title"><span>[SYS_ENV] SIMULADOR DE CONTEXTO GPS</span></div>
+            <div class="panel-content">
+                <div class="range-box">
+                    <label>VELOCIDAD DEL VIENTO (API SIM) / <span id="v-wind-val">12.5 km/h</span></label>
+                    <input type="range" id="slider-wind" min="0" max="60" step="0.5" value="12.5">
+                </div>
+                <div class="range-box">
+                    <label>ÁNGULO DEL VIENTO / <span id="v-dir-val">180°</span></label>
+                    <input type="range" id="slider-dir" min="0" max="360" value="180">
+                </div>
+                <div class="range-box">
+                    <label>FOTOPERIODO (HORAS LUZ SOLAR) / <span id="v-light-hours">12.0h</span></label>
+                    <input type="range" id="slider-hours" min="4" max="20" step="0.1" value="12.0">
+                </div>
+                <div class="range-box">
+                    <label>TEMPERATURA LOCAL / <span id="v-temp">24.5°C</span></label>
+                    <input type="range" id="slider-temp" min="-5" max="45" step="0.5" value="24.5">
+                </div>
+                <div class="range-box">
+                    <label>DENSIDAD DE PLAGAS DE LA ZONA / <span id="v-pests">5%</span></label>
+                    <input type="range" id="slider-pests" min="0" max="100" value="5">
+                </div>
+                <div class="range-box">
+                    <label>VELOCIDAD DE MOVIMIENTO DEL DISPOSITIVO / <span id="v-speed">0.0 km/h</span></label>
+                    <input type="range" id="slider-speed" min="0" max="60" step="1" value="0">
+                </div>
+                <div class="hud-row" style="margin-top: auto; border: none;">
+                    <button class="btn-tech" style="width: 100%;" id="btn-toggle-night">FORZAR INTERACCIÓN NOCTURNA: NO</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel active">
+            <div class="panel-title"><span>[SPATIAL_HASH_MAP] AXION PLANT MAPS & ENTORNO AR</span></div>
+            <div class="canvas-container" id="canvas-wrapper">
+                <canvas id="mainCanvas"></canvas>
+            </div>
+        </section>
+
+        <section class="panel active">
+            <div class="panel-title"><span>[FAxiomPlantGeneticData] ATRIBUTOS DE INSTANCIA</span></div>
+            <div class="panel-content">
+                <div class="hud-row">
+                    <span class="hud-label">ID ESPÉCIMEN:</span>
+                    <span class="hud-value text-muted">#AX-102139</span>
+                </div>
+                <div class="hud-row">
+                    <span class="hud-label">SEXO GENÉTICO:</span>
+                    <span class="hud-value good" id="lbl-sex">FEMALE</span>
+                </div>
+                <div class="hud-row">
+                    <span class="hud-label">TIER GENERACIONAL:</span>
+                    <span class="hud-value" id="lbl-tier">1</span>
+                </div>
+                <div class="hud-row">
+                    <span class="hud-label">HIDRATACIÓN:</span>
+                    <span class="hud-value good" id="lbl-hydration">100%</span>
+                </div>
+                <div class="hud-row">
+                    <span class="hud-label">ESTRÉS LUMÍNICO/TÉRMICO:</span>
+                    <span class="hud-value" id="lbl-stress">0%</span>
+                </div>
+                <div class="hud-row">
+                    <span class="hud-label">INFECCIÓN POR PLAGAS:</span>
+                    <span class="hud-value" id="lbl-pests">0%</span>
+                </div>
+                <div class="hud-row">
+                    <span class="hud-label">SALUD BIOLÓGICA (VeroHealth):</span>
+                    <span class="hud-value good" id="lbl-health">100%</span>
+                </div>
+                
+                <div style="border-top: 1px dashed var(--border-tech); margin: 6px 0; padding-top: 6px;">
+                    <div class="panel-title" style="padding: 0 0 6px 0; border: none; background: transparent;"><span>ESTADO DE CURADO (BOTES VIRTUALES)</span></div>
+                    <div class="hud-row">
+                        <span class="hud-label">HUMEDAD RECIPIENTE:</span>
+                        <span class="hud-value" id="lbl-moisture">65%</span>
+                    </div>
+                    <div class="hud-row">
+                        <span class="hud-label">DEGRADACIÓN CLOROFILA:</span>
+                        <span class="hud-value" id="lbl-chlorophyll">0%</span>
+                    </div>
+                    <div class="hud-row">
+                        <span class="hud-label">MULTIPLICADOR TERPENOS:</span>
+                        <span class="hud-value" id="lbl-terpenes">1.0x</span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: auto;">
+                    <button class="btn-tech" id="btn-burp">AIREAR BOTE</button>
+                    <button class="btn-tech" id="btn-setup">INDOOR SETUP</button>
+                </div>
+                <button class="btn-tech btn-alert" style="width: 100%;" id="btn-permadeath">TRIGGER PERMADEATH PROTOCOL</button>
+            </div>
+        </section>
+
+        <section class="panel active" style="grid-column: 1 / -1;">
+            <div class="panel-title">
+                <span>[CRYSTAL_LOG_CORE] LOGS DE EVENTOS DEL MOTOR & FINANZAS P2P</span>
+                <div>AXIOM COINS: <span id="lbl-coins" style="color: var(--border-focus); font-weight: bold;">1000.00 AC</span> | CONTROL TURF: <span id="lbl-turf">45%</span></div>
+            </div>
+            <div style="display: flex; height: calc(100% - 25px);">
+                <div style="width: 280px; border-right: 1px solid var(--border-tech); padding: 8px; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="flow-step" id="step-1">1. Deserialización Unix Timestamp</div>
+                    <div class="flow-step" id="step-2">2. Evaluación Biológica No Lineal</div>
+                    <div class="flow-step" id="step-3">3. Inyección Clima e Impacto</div>
+                    <div class="flow-step" id="step-4">4. Lazy Material Update (Shader)</div>
+                </div>
+                <ul class="terminal-log" id="log-display">
+                    <li><span class="log-time">[00:00:00]</span><span class="log-system">[SYS_INIT]</span>Compilador Web Monolítico Axiom-Flora cargado con éxito. Esperando inyección lógica...</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+    <script>
+        // --- 1. ESTADO GLOBAL CENTRALIZADO (ESTRUCTURA DE DATOS ALINEADA) ---
+        const AXIOM_FLORA_STATE = {
+            plant: {
+                id: 102139,
+                geneticSex: "Female", // Male, Female, Hermaphrodite
+                generationTier: 1,
+                hydrationLevel: 1.0,
+                stressLevel: 0.0,
+                pestInfectionRatio: 0.0,
+                healthLevel: 1.0,
+                moistureContent: 0.65,
+                chlorophyllDecay: 0.0,
+                terpeneMultiplier: 1.0,
+                isCured: false,
+                isDestroyed: false,
+                lastCheckedTimestamp: Math.floor(Date.now() / 1000)
+            },
+            env: {
+                windSpeed: 12.5,
+                windDirection: 180,
+                daylightHours: 12.0,
+                localTemperature: 24.5,
+                regionalPestDensity: 0.05,
+                muleSpeed: 0.0,
+                isNightInteraction: false,
+                indoorSetupActive: false,
+                uvIndex: 4.2,
+                barometricPressure: 1013.25,
+                ambientLightIntensity: 0.8
+            },
+            market: {
+                axiomCoins: 1000.0,
+                districtControl: 45.0,
+                taxRate: 0.02,
+                priceCrashModifier: 1.0,
+                policeAlertActive: false,
+                muleQualityLoss: 0.0
+            },
+            reputation: {
+                streetReputation: 1.0,
+                bitmask: new Uint32Array(2), // Almacenamiento de logros en 64-bit compactos
+                revengeWindowTimer: 0
+            }
+        };
+
+        // --- 2. CONFIGURACIÓN E INFRAESTRUCTURA DEL AUDIO (METASOUNDS EMULATOR) ---
+        let audioCtx = null;
+        let mainOscillator = null;
+        let filterNode = null;
+        let gainNode = null;
+
+        function initAudioEngine() {
+            if (audioCtx) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                mainOscillator = audioCtx.createOscillator();
+                filterNode = audioCtx.createBiquadFilter();
+                gainNode = audioCtx.createGain();
+
+                mainOscillator.type = 'sine';
+                mainOscillator.frequency.value = 220; // Drone base armónico
+
+                filterNode.type = 'lowpass';
+                filterNode.frequency.value = 1000;
+
+                gainNode.gain.value = 0.15;
+
+                mainOscillator.connect(filterNode);
+                filterNode.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                mainOscillator.start();
+                logToTerminal("AUDIO", "Sintetizador Procedimental MetaSounds Inicializado Síncronamente.");
+            } catch (e) {
+                console.error("Fallo al arrancar la Web Audio API:", e);
+            }
+        }
+
+        function updateAudioSynthesis(health, stress) {
+            if (!audioCtx) return;
+            // Si la salud cae o hay estrés lumínico, alteramos las frecuencias y filtros a distorsión granular
+            if (health <= 0) {
+                gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+                return;
+            }
+            const baseFreq = 150 + (health * 100);
+            const stressJitter = stress * Math.sin(Date.now() * 0.05) * 80; // Modulación granular
+            mainOscillator.frequency.setTargetAtTime(baseFreq + stressJitter, audioCtx.currentTime, 0.1);
+            
+            const filterCutoff = 200 + (health * 1500) - (stress * 800);
+            filterNode.frequency.setTargetAtTime(Math.max(100, filterCutoff), audioCtx.currentTime, 0.1);
+        }
+
+        // --- 3. INFRAESTRUCTURA MATEMÁTICA Y LOGS DE TERMINAL ---
+        const logDisplay = document.getElementById('log-display');
+
+        function logToTerminal(system, message) {
+            const timeStr = new Date().toTimeString().split(' ')[0];
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="log-time">[${timeStr}]</span><span class="log-system">[${system}]</span>${message}`;
+            logDisplay.appendChild(li);
+            logDisplay.scrollTop = logDisplay.scrollHeight;
+            if (logDisplay.children.length > 40) logDisplay.removeChild(logDisplay.children[0]);
+        }
+
+        // Algoritmo Spatial Hashing Simple para Geocoordenadas
+        function getSpatialHash(lat, lng) {
+            const cellSize = 0.005; // Tamaño de celda en mapa
+            const x = Math.floor(lat / cellSize);
+            const y = Math.floor(lng / cellSize);
+            // Simulación simplificada de clave única int64 concatenando hashes enteros
+            return `H_${x}_${y}`;
+        }
+
+        // --- 4. CONFIGURACIÓN DEL CANVAS (RADAR Y SPATIAL HASH MAP) ---
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+
+        function resizeCanvas() {
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // --- 5. BUCLE MECÁNICO ASÍNCRONO DE EVALUACIÓN LAZY (SIN TICK CONTINUO) ---
+        const EvaporationBaseRate = 0.00005;
+
+        function runLazyEvaluationPipeline() {
+            const now = Math.floor(Date.now() / 1000);
+            const data = AXIOM_FLORA_STATE.plant;
+            const env = AXIOM_FLORA_STATE.env;
+            const market = AXIOM_FLORA_STATE.market;
+
+            if (data.isDestroyed) return;
+
+            // Paso 1: Deserialización de Tiempos
+            triggerFlowStepVisual(1);
+            let deltaTime = now - data.lastCheckedTimestamp;
+            if (deltaTime <= 0) deltaTime = 1; // Forzar delta mínima para controles interactivos en vivo
+
+            // Paso 2: Evaluación Biológica No Lineal y Degradación
+            triggerFlowStepVisual(2);
+            
+            // Pérdida por evaporación afectada por temperatura
+            const tempFactor = env.localTemperature > 30.0 ? (env.localTemperature * 0.1) : 1.0;
+            const waterLoss = EvaporationBaseRate * tempFactor * deltaTime;
+            
+            if (!env.indoorSetupActive) {
+                data.hydrationLevel = Math.max(0.0, data.hydrationLevel - waterLoss);
+            } else {
+                // Invernadero consume batería pero estabiliza hidratación
+                data.hydrationLevel = Math.max(0.0, data.hydrationLevel - (waterLoss * 0.2));
+            }
+
+            // Estrés lumínico/térmico si es de noche y no hay indoor, o exceso de calor
+            if (env.isNightInteraction && !env.indoorSetupActive) {
+                data.stressLevel = Math.min(1.0, data.stressLevel + 0.01);
+            } else {
+                data.stressLevel = Math.max(0.0, data.stressLevel - 0.005);
+            }
+
+            // Mutación por hermafroditismo inducida por estrés severo
+            if (data.stressLevel > 0.80 && data.geneticSex === "Female") {
+                if (Math.random() > 0.6) {
+                    data.geneticSex = "Hermaphrodite";
+                    logToTerminal("GENETIC_MUTATION", "Alerta: El estrés severo indujo hermafroditismo F1.");
+                }
+            }
+
+            // Simulación del Curado y Degradación de Clorofila
+            if (data.moistureContent > 0) {
+                // Si no se abre el bote, la humedad estanca pudre la planta
+                data.moistureContent = Math.max(0.0, data.moistureContent - 0.0005 * deltaTime);
+                data.chlorophyllDecay = Math.min(1.0, data.chlorophyllDecay + 0.001 * deltaTime);
+                
+                if (data.moistureContent > 0.85) {
+                    data.healthLevel = 0;
+                    logToTerminal("CURING_FAIL", "CRÍTICO: Lote infestado por hongo (Moho total). Valor de Broker = 0.");
+                } else if (data.moistureContent < 0.15 && !data.isCured) {
+                    data.isCured = true;
+                    data.terpeneMultiplier = 3.0;
+                    market.axiomCoins += 500 * market.priceCrashModifier;
+                    logToTerminal("CURING_SUCCESS", "¡Curado perfecto! Perfil de Terpenos x3. Broker pagó prima de incentivo.");
+                }
+            }
+
+            // Paso 3: Inyección del Clima Local e Impacto Ecológico
+            triggerFlowStepVisual(3);
+            
+            // Plagas estocásticas
+            if (env.regionalPestDensity > 0.3) {
+                const infectionChance = (env.regionalPestDensity * (deltaTime / 3600.0)) * 0.05;
+                data.pestInfectionRatio = Math.min(1.0, data.pestInfectionRatio + infectionChance);
+            }
+
+            // Impacto de velocidad de mensajería (Mule Pipeline)
+            if (env.muleSpeed > 30.0) {
+                market.muleQualityLoss = Math.min(1.0, market.muleQualityLoss + 0.02);
+                data.healthLevel = Math.max(0.0, data.healthLevel - 0.01);
+                if (Math.random() > 0.9) {
+                    logToTerminal("LOGISTICS", "AVISO: Lote dañado por vibración extrema (Velocidad > 30 km/h).");
+                }
+            }
+
+            // Actualización de salud estructural (VeroHealth) basada en variables de estrés
+            let atmosphericStress = env.uvIndex > 9.0 && env.barometricPressure < 1005.0;
+            if (atmosphericStress || data.hydrationLevel < 0.2 || data.pestInfectionRatio > 0.5) {
+                data.healthLevel = Math.max(0.0, data.healthLevel - 0.005 * deltaTime);
+            } else {
+                data.healthLevel = Math.min(1.0, data.healthLevel + 0.002 * deltaTime);
+            }
+
+            // Paso 4: Actualización del Estado Genético e Invocación de Shaders/DOM
+            triggerFlowStepVisual(4);
+            data.lastCheckedTimestamp = now;
+
+            // Invocar renderizador de sonido y sincronizar interfaz
+            updateAudioSynthesis(data.healthLevel, data.stressLevel);
+            syncDOMInterface();
+
+            if (data.healthLevel <= 0 && !data.isDestroyed) {
+                triggerPermadeathProtocol();
+            }
+        }
+
+        function triggerFlowStepVisual(stepId) {
+            document.querySelectorAll('.flow-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${stepId}`).classList.add('active');
+        }
+
+        // --- 6. SINCRONIZACIÓN ELECTRÓNICA DE LA VISTA (DOM) ---
+        function syncDOMInterface() {
+            const state = AXIOM_FLORA_STATE;
+            
+            document.getElementById('lbl-sex').innerText = state.plant.geneticSex.toUpperCase();
+            document.getElementById('lbl-sex').className = `hud-value ${state.plant.geneticSex === 'Female' ? 'good' : 'warn'}`;
+            
+            document.getElementById('lbl-tier').innerText = state.plant.generationTier;
+            document.getElementById('lbl-hydration').innerText = Math.floor(state.plant.hydrationLevel * 100) + "%";
+            document.getElementById('lbl-stress').innerText = Math.floor(state.plant.stressLevel * 100) + "%";
+            document.getElementById('lbl-pests').innerText = Math.floor(state.plant.pestInfectionRatio * 100) + "%";
+            
+            const healthLbl = document.getElementById('lbl-health');
+            healthLbl.innerText = Math.floor(state.plant.healthLevel * 100) + "%";
+            if (state.plant.healthLevel > 0.6) healthLbl.className = "hud-value good";
+            else if (state.plant.healthLevel > 0.2) healthLbl.className = "hud-value warn";
+            else healthLbl.className = "hud-value alert";
+
+            document.getElementById('lbl-moisture').innerText = Math.floor(state.plant.moistureContent * 100) + "%";
+            document.getElementById('lbl-chlorophyll').innerText = Math.floor(state.plant.chlorophyllDecay * 100) + "%";
+            document.getElementById('lbl-terpenes').innerText = state.plant.terpeneMultiplier.toFixed(1) + "x";
+            
+            document.getElementById('lbl-coins').innerText = state.market.axiomCoins.toFixed(2) + " AC";
+            document.getElementById('lbl-turf').innerText = state.market.districtControl + "%";
+            
+            // Actualización de etiquetas de los Sliders
+            document.getElementById('v-wind-val').innerText = state.env.windSpeed + " km/h";
+            document.getElementById('v-dir-val').innerText = state.env.windDirection + "°";
+            document.getElementById('v-light-hours').innerText = state.env.daylightHours + "h";
+            document.getElementById('v-temp').innerText = state.env.localTemperature + "°C";
+            document.getElementById('v-pests').innerText = state.env.regionalPestDensity + "%";
+            document.getElementById('v-speed').innerText = state.env.muleSpeed + " km/h";
+        }
+
+        // --- 7. PROTOCOLO DE MUERTE PERMANENTE EXTREMA (PERMADEATH VÍA NIAGARA) ---
+        function triggerPermadeathProtocol() {
+            if (AXIOM_FLORA_STATE.plant.isDestroyed) return;
+            AXIOM_FLORA_STATE.plant.isDestroyed = true;
+            AXIOM_FLORA_STATE.plant.healthLevel = 0;
+            
+            logToTerminal("PERMADEATH", "Protocolo de destrucción geométrica activado. Ejecutando Niagara Cyber-Dissolve.");
+            updateAudioSynthesis(0, 0);
+            
+            // Generar Legado de la Semilla Mutada (Dead Drop en coordenadas GPS actuales)
+            const currentHash = getSpatialHash(AXIOM_FLORA_STATE.env.windSpeed, AXIOM_FLORA_STATE.env.windDirection);
+            logToTerminal("SERVER_BACKEND", `Semilla Corrupta empaquetada y arrojada en el mapa real (GPS Node: ${currentHash}). Alerta anónima enviada al distrito.`);
+            
+            document.getElementById('btn-burp').disabled = true;
+            document.getElementById('btn-setup').disabled = true;
+            document.getElementById('btn-permadeath').disabled = true;
+            syncDOMInterface();
+        }
+
+        // --- 8. VINCULACIÓN DE INPUTS NATIVOS EN TIEMPO REAL ---
+        document.getElementById('slider-wind').addEventListener('input', (e) => {
+            AXIOM_FLORA_STATE.env.windSpeed = parseFloat(e.target.value);
+            runLazyEvaluationPipeline();
+        });
+        document.getElementById('slider-dir').addEventListener('input', (e) => {
+            AXIOM_FLORA_STATE.env.windDirection = parseInt(e.target.value);
+            runLazyEvaluationPipeline();
+        });
+        document.getElementById('slider-hours').addEventListener('input', (e) => {
+            AXIOM_FLORA_STATE.env.daylightHours = parseFloat(e.target.value);
+            runLazyEvaluationPipeline();
+        });
+        document.getElementById('slider-temp').addEventListener('input', (e) => {
+            AXIOM_FLORA_STATE.env.localTemperature = parseFloat(e.target.value);
+            runLazyEvaluationPipeline();
+        });
+        document.getElementById('slider-pests').addEventListener('input', (e) => {
+            AXIOM_FLORA_STATE.env.regionalPestDensity = parseInt(e.target.value);
+            runLazyEvaluationPipeline();
+        });
+        document.getElementById('slider-speed').addEventListener('input', (e) => {
+            AXIOM_FLORA_STATE.env.muleSpeed = parseInt(e.target.value);
+            runLazyEvaluationPipeline();
+        });
+
+        document.getElementById('btn-toggle-night').addEventListener('click', (e) => {
+            initAudioEngine();
+            AXIOM_FLORA_STATE.env.isNightInteraction = !AXIOM_FLORA_STATE.env.isNightInteraction;
+            e.target.innerText = `FORZAR INTERACCIÓN NOCTURNA: ${AXIOM_FLORA_STATE.env.isNightInteraction ? 'SÍ' : 'NO'}`;
+            runLazyEvaluationPipeline();
+        });
+
+        document.getElementById('btn-burp').addEventListener('click', () => {
+            initAudioEngine();
+            if (AXIOM_FLORA_STATE.plant.isDestroyed) return;
+            // Abrir botes ventila la humedad acumulada excesiva regulando el moho
+            AXIOM_FLORA_STATE.plant.moistureContent = Math.max(0.12, AXIOM_FLORA_STATE.plant.moistureContent - 0.08);
+            logToTerminal("ENV_ACTION", "Bote de curado abierto y ventilado. Humedad purgada con éxito.");
+            runLazyEvaluationPipeline();
+        });
+
+        document.getElementById('btn-setup').addEventListener('click', (e) => {
+            initAudioEngine();
+            if (AXIOM_FLORA_STATE.plant.isDestroyed) return;
+            AXIOM_FLORA_STATE.env.indoorSetupActive = !AXIOM_FLORA_STATE.env.indoorSetupActive;
+            e.target.innerText = AXIOM_FLORA_STATE.env.indoorSetupActive ? "INDOOR ACTIVE" : "INDOOR SETUP";
+            e.target.style.borderColor = AXIOM_FLORA_STATE.env.indoorSetupActive ? "var(--border-focus)" : "var(--border-tech)";
+            logToTerminal("SYS_ACTION", `Luces de cultivo e invernadero virtual: ${AXIOM_FLORA_STATE.env.indoorSetupActive ? 'ACTIVADOS (Batería en drenaje sim)' : 'DESACTIVADOS'}`);
+            runLazyEvaluationPipeline();
+        });
+
+        document.getElementById('btn-permadeath').addEventListener('click', () => {
+            initAudioEngine();
+            triggerPermadeathProtocol();
+        });
+
+        // --- 9. RENDERIZADO DEL SUB-SISTEMA GRÁFICO (REJILLA DE SPATIAL HASHING) ---
+        let frameCount = 0;
+        function updateVisualEngine(timestamp) {
+            const start = performance.now();
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar Rejilla de Spatial Hashing Geo-Espacial
+            ctx.strokeStyle = "rgba(31, 58, 43, 0.4)";
+            ctx.lineWidth = 1;
+            const size = 40;
+            for (let x = 0; x < canvas.width; x += size) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += size) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Dibujar Nodos Geocercanos de la Crew (Object Pooling simulado)
+            ctx.fillStyle = "rgba(34, 197, 94, 0.15)";
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 120, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "var(--border-tech)";
+            ctx.stroke();
+
+            // Dibujar Vector de Viento de Polinización Cruzada (Dinámica Estocástica)
+            const windAngle = (AXIOM_FLORA_STATE.env.windDirection * Math.PI) / 180;
+            const windLen = AXIOM_FLORA_STATE.env.windSpeed * 2;
+            const endX = centerX + Math.cos(windAngle) * windLen;
+            const endY = centerY + Math.sin(windAngle) * windLen;
+
+            ctx.strokeStyle = "var(--neon-warning)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Dibujar Nodo Central de la Planta Definitiva (Axiom Aeterna)
+            if (!AXIOM_FLORA_STATE.plant.isDestroyed) {
+                const pulse = 10 + Math.sin(timestamp * 0.005) * 4;
+                ctx.fillStyle = AXIOM_FLORA_STATE.plant.geneticSex === "Hermaphrodite" ? "var(--neon-warning)" : "var(--border-focus)";
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, pulse, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset
+            } else {
+                // Partículas del remolino Niagara colapsado
+                ctx.fillStyle = "var(--neon-alert)";
+                for (let i = 0; i < 15; i++) {
+                    const offset = Math.sin(timestamp * 0.01 + i) * 30;
+                    ctx.fillRect(centerX + offset, centerY + (i * 4) - 30, 2, 2);
+                }
+            }
+
+            // Simular y calcular telemetrías del presupuesto de frame real (ISO 14229)
+            const end = performance.now();
+            frameCount++;
+            
+            if (frameCount % 5 === 0) { // Reducir refresco visual del HUD de latencia para legibilidad
+                const simTime = (end - start);
+                document.getElementById('t-proc').innerText = (simTime * 0.25).toFixed(2) + "ms";
+                document.getElementById('t-chk').innerText = (simTime * 0.15).toFixed(2) + "ms";
+                document.getElementById('t-tx').innerText = (simTime * 0.5).toFixed(2) + "ms";
+                document.getElementById('t-acq').innerText = (0.05).toFixed(2) + "ms";
+                
+                const totalLatency = simTime * 0.95 + 0.05;
+                const totalLbl = document.getElementById('l-total');
+                totalLbl.innerText = totalLatency.toFixed(2) + "ms";
+                totalLbl.style.color = totalLatency > 1.50 ? "var(--neon-alert)" : "var(--border-focus)";
+            }
+
+            requestAnimationFrame(updateVisualEngine);
+        }
+
+        // --- 10. EJECUCIÓN INICIAL DEL SISTEMA ---
+        // Ejecutar evaluación de estado perezosa cada segundo de forma pasiva
+        setInterval(runLazyEvaluationPipeline, 1000);
+        // Lanzar bucle gráfico de mallas Nanite/Radar
+        requestAnimationFrame(updateVisualEngine);
+        // Sincronizar DOM inicial
+        syncDOMInterface();
+    </script>
+</body>
+</html>
