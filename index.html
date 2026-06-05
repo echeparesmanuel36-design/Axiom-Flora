@@ -6,7 +6,7 @@
     <title>AXIOM FLORA // Core Gameplay Interface</title>
     <style>
         /* =========================================================================
-           [BLOQUE 1 - ESTILOS BASE Y VARIABLES HOLOGRÁFICAS UNREAL ENGINE MATRIX]
+           [ESTILOS BASE Y VARIABLES HOLOGRÁFICAS UNREAL ENGINE MATRIX]
            ========================================================================= */
         :root {
             --bg-dark: #060908;
@@ -39,6 +39,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border: 3px solid #1b3527;
         }
 
         /* BANNER DE INGENIERÍA PRINCIPAL */
@@ -104,9 +105,8 @@
             flex-direction: column;
             z-index: 10;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
-            transition: border-color 0.3s ease;
+            overflow: hidden;
         }
-
         .hud-panel.panel-cyan { border-color: rgba(0, 225, 255, 0.2); }
         .hud-panel.panel-amber { border-color: rgba(255, 170, 0, 0.2); }
 
@@ -130,133 +130,10 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
-        /* CAPA CENTRAL RECTILÍNEA DE CONTROL CAM / AR */
-        .ar-viewframe-center {
-            position: relative;
-            border-radius: 8px;
-            border: 1px solid rgba(57, 229, 138, 0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            background: #020403;
-        }
-
-        /* CÁMARA DE REALIDAD AUMENTADA DE FONDO FALSO/REAL */
-        #ar-video-feed {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-            transform: scaleX(-1); /* Efecto espejo natural */
-            opacity: 0.4; /* Permitir ver la cuadrícula holográfica */
-        }
-
-        /* CANVAS DE RENDERIZADO GRÁFICO DE PLANTAS DE ALTA FIDELIDAD */
-        #ar-canvas-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .ar-hud-overlay {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            right: 15px;
-            z-index: 3;
-            display: grid;
-            grid-template-columns: 1fr 150px;
-            gap: 10px;
-            pointer-events: auto;
-        }
-
-        /* POPUPS REACCIONALES DE LOGROS MALOS (PUBLIC ROASTING) */
-        .roast-popup-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.75);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-
-        .roast-modal {
-            background: #160b0b;
-            border: 2px solid var(--hud-border-red);
-            box-shadow: 0 0 30px rgba(255, 74, 74, 0.4);
-            width: 420px;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- CABECERA OPERACIONAL DEL JUEGO -->
-    <header class="axiom-header">
-        <div class="title-container">
-            <h1>AXIOM FLORA</h1>
-            <span>EL IMPERIO VERDE INDEPENDIENTE // STREET BOTANY</span>
-        </div>
-        <div class="global-telemetry-bar">
-            <div class="telemetry-node">P2P SYNC: <strong id="net-sync-latency">1.5ms FLAT</strong></div>
-            <div class="telemetry-node">SECURITY LAYER: <span style="color:var(--hud-border-green);" id="sec-status">ACTIVE</span></div>
-            <div class="telemetry-node" style="border-color: var(--hud-border-green);">CORE COMPILER: <span style="color:var(--hud-border-green);">COMPILER GREEN</span></div>
-        </div>
-    </header>
-
-    <!-- ÁREA GLOBAL DE COMBATE Y SIMULACIÓN GENÉTICA -->
-    <main class="game-canvas-master">
-        
-        <!-- SECCIÓN DE CONTENIDO RESERVADA PARA LOS SIGUIENTES BLOQUES: -->
-        <!-- PANEL IZQUIERDO: UNCENSORED MARKET (Se inyectará en Bloque 2) -->
-        <div id="anchor-left-panel" style="display: contents;"></div>
-
-        <!-- PANEL CENTRAL: ACTIVE GENETIC SIMULATION CON VÍDEO FEED Y CANVAS AR -->
-        <section class="ar-viewframe-center" id="center-zone-parent">
-            <!-- Hardware Video Feed Integrado para AR Nativa -->
-            <video id="ar-video-feed" autoplay playsinline muted></video>
-            
-            <!-- Lienzo de renderizado para mallas y partículas cuánticas de la planta -->
-            <canvas id="ar-canvas-layer"></canvas>
-
-            <!-- Controladores flotantes inmediatos en el área de simulación -->
-            <div class="ar-hud-overlay" id="anchor-center-hud"></div>
-        </section>
-
-        <!-- PANEL DERECHO: CONTEXTO BIOLÓGICO, CONTROLES PRO Y LOGROS (Se inyectará en Bloque 3) -->
-        <div id="anchor-right-panel" style="display: contents;"></div>
-
-    </main>
-
-    <!-- MODAL DE ROASTEO PÚBLICO (ALERTA DE LOGROS MALOS) -->
-    <div class="roast-popup-overlay" id="public-roast-popup">
-        <div class="roast-modal">
-            <div style="font-size: 40px; color: var(--hud-border-red); margin-bottom: 10px;">⚠️</div>
-            <h2 style="color: #fff; font-size: 16px; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">PUBLIC ROASTING TRIGGERED!</h2>
-            <p id="roast-popup-message" style="color: #ffb3b3; font-size: 13px; margin-bottom: 20px; font-weight: bold; line-height: 16px;">"GRANDMOTHER'S DISGRACE"</p>
-            <button class="btn-action-spec" id="btn-close-roast" style="background:#401515; border:1px solid var(--hud-border-red); color:#fff; padding:8px 25px; cursor:pointer; font-weight:bold; text-transform:uppercase; font-size:11px; border-radius:4px;">OK</button>
-        </div>
-    </div>
-    <!-- =========================================================================
-       [BLOQUE 2 - PANEL IZQUIERDO: UNCENSORED MARKET & AXIOM PLANT MAPS]
-       ========================================================================= -->
-    <style>
-        /* ESTILOS ESPECÍFICOS PARA EL MENÚ DEL MERCADO P2P Y DE CULTIVO */
+        /* MARKETPLACE GRID LAYOUT */
         .market-grid-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -277,7 +154,6 @@
         .plant-catalog-card:hover {
             border-color: var(--hud-border-green);
             background: rgba(57, 229, 138, 0.03);
-            box-shadow: 0 0 10px rgba(57, 229, 138, 0.1);
         }
         .plant-catalog-card.selected {
             border-color: var(--hud-border-cyan);
@@ -287,7 +163,7 @@
 
         .card-image-emulation {
             width: 100%;
-            height: 75px;
+            height: 70px;
             background: #090e0c;
             border: 1px solid rgba(57, 229, 138, 0.1);
             border-radius: 4px;
@@ -295,75 +171,127 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
         }
-
-        /* Rejillas y tramas tecnológicas dentro de los cuadros de imagen */
         .card-image-emulation::before {
             content: '';
             position: absolute;
             width: 100%; height: 100%;
-            background: linear-gradient(rgba(57,229,138,0.05) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(57,229,138,0.05) 1px, transparent 1px);
-            background-size: 8px 8px;
+            background: linear-gradient(rgba(57,229,138,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(57,229,138,0.03) 1px, transparent 1px);
+            background-size: 6px 6px;
         }
+        .card-image-emulation span { font-size: 24px; z-index: 2; }
 
-        .card-image-emulation span {
-            font-size: 26px;
-            z-index: 2;
-            filter: drop-shadow(0 0 5px rgba(57,229,138,0.5));
-        }
+        .card-meta-title { font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .card-price-tag { font-size: 11px; color: var(--hud-border-green); font-weight: bold; }
 
-        .card-meta-title {
-            font-size: 10px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card-price-tag {
-            font-size: 11px;
-            color: var(--hud-border-green);
-            font-weight: bold;
-        }
-
-        /* DISEÑO COMPACTO PARA EL INTEGRADO DEL MAPA DE CONTROL */
         .map-interactive-module {
             background: #040806;
             border: 1px solid rgba(0, 225, 255, 0.15);
             border-radius: 6px;
-            height: 125px;
+            height: 110px;
             position: relative;
             overflow: hidden;
         }
-        #mini-map-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+        #mini-map-canvas { width: 100%; height: 100%; display: block; }
 
         .map-floating-tags {
             position: absolute;
-            top: 6px;
-            left: 6px;
-            background: rgba(0,0,0,0.75);
+            top: 6px; left: 6px;
+            background: rgba(0,0,0,0.8);
             border: 1px solid var(--hud-border-cyan);
-            padding: 3px 6px;
-            font-size: 9px;
-            border-radius: 3px;
-            pointer-events: none;
+            padding: 2px 5px;
+            font-size: 8px;
+            border-radius: 2px;
             color: var(--hud-border-cyan);
         }
 
-        /* BOTONES INTERACTIVOS DE ALTA PRECISIÓN */
+        /* CAPA CENTRAL RECTILÍNEA DE CONTROL CAM / AR */
+        .ar-viewframe-center {
+            position: relative;
+            border-radius: 8px;
+            border: 1px solid rgba(57, 229, 138, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #020403;
+        }
+
+        #ar-video-feed {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transform: scaleX(-1);
+            opacity: 0.3;
+        }
+
+        #ar-canvas-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .ar-hud-overlay {
+            position: absolute;
+            bottom: 12px; left: 12px; right: 12px;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ar-center-hologram-controls {
+            background: rgba(13, 22, 18, 0.85);
+            border: 1px solid rgba(57, 229, 138, 0.3);
+            border-radius: 4px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .btn-ar-toggle {
+            background: #11252b;
+            border: 1px solid var(--hud-border-cyan);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .btn-ar-toggle:hover {
+            background: var(--hud-border-cyan);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px var(--text-glow-cyan);
+        }
+
+        /* BARRAS METRICAS DEL HUD DERECHO */
+        .hud-metric-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px;
+            border: 1px solid rgba(57, 229, 138, 0.1);
+            border-radius: 4px;
+        }
+        .hud-metric-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; }
+        .hud-progress-track { background: #050806; border: 1px solid #1b3527; height: 10px; border-radius: 2px; overflow: hidden; }
+        .hud-progress-fill { height: 100%; width: 0%; background: var(--hud-border-green); transition: width 0.3s ease; }
+        .hud-progress-fill.fill-cyan { background: var(--hud-border-cyan); }
+        .hud-progress-fill.fill-amber { background: var(--hud-border-amber); }
+        .hud-progress-fill.fill-red { background: var(--hud-border-red); }
+
         .btn-action-spec {
             background: #112218;
             border: 1px solid var(--hud-border-green);
             color: #ffffff;
-            padding: 10px;
+            padding: 8px;
             border-radius: 4px;
             font-size: 11px;
             font-weight: bold;
@@ -375,49 +303,111 @@
         .btn-action-spec:hover:not(:disabled) {
             background: var(--hud-border-green);
             color: var(--bg-dark);
-            box-shadow: 0 0 12px var(--text-glow-green);
+            box-shadow: 0 0 10px var(--text-glow-green);
         }
-        .btn-action-spec:disabled {
-            opacity: 0.25;
-            cursor: not-allowed;
-            border-color: #1b3527;
-            background: transparent;
+        .btn-action-spec:disabled { opacity: 0.2; cursor: not-allowed; }
+
+        /* REJILLA DE MEDALLAS / LOGROS (FIDELIDAD 4011.png) */
+        .badges-profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .badge-interactive-slot {
+            background: rgba(4, 7, 6, 0.8);
+            border: 1px solid #1b3527;
+            border-radius: 5px;
+            padding: 6px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.3;
+        }
+        .badge-interactive-slot.unlocked-good { opacity: 1; border-color: var(--hud-border-amber); background: rgba(255, 170, 0, 0.03); }
+        .badge-interactive-slot.unlocked-bad { opacity: 1; border-color: var(--hud-border-red); background: rgba(255, 74, 74, 0.05); }
+        .badge-icon-frame { font-size: 18px; }
+        .badge-label-title { font-size: 8px; font-weight: bold; text-transform: uppercase; }
+
+        /* LOTE INFERIOR: TERMINAL RED RUST Y LICENCIA COMERCIAL COSTE CONSTANTE $O(1)$ */
+        .bottom-hustle-terminal {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 15px;
+            height: 120px;
+        }
+        .rust-backend-stream {
+            background: rgba(3, 6, 5, 0.9);
+            border: 1px solid rgba(57, 229, 138, 0.15);
+            border-radius: 6px;
+            padding: 8px;
+            overflow-y: auto;
+            list-style: none;
+            font-size: 10px;
+        }
+        .t-time { color: #4a6355; margin-right: 6px; }
+        .t-tag { font-weight: bold; margin-right: 6px; }
+        .t-tag.good { color: var(--hud-border-green); }
+        .t-tag.bad { color: var(--hud-border-red); }
+        .t-tag.info { color: var(--hud-border-cyan); }
+
+        .ai-street-coach-card { background: var(--hud-bg-opaque); border: 1px solid rgba(0, 225, 255, 0.2); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .coach-speech-bubble { background: #040706; border: 1px dashed rgba(0, 225, 255, 0.2); padding: 6px; border-radius: 4px; font-size: 10px; line-height: 13px; color: #b3f0ff; flex: 1; overflow-y: auto; }
+
+        /* CAPAS DE POPUPS DE ROASTEO PÚBLICO */
+        .roast-popup-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .roast-modal { background: #160b0b; border: 2px solid var(--hud-border-red); box-shadow: 0 0 25px rgba(255, 74, 74, 0.4); width: 380px; border-radius: 8px; padding: 20px; text-align: center; }
+
+        /* MARCO EXCLUSIVO DE VENTA / LICENCIA COMERCIAL */
+        .commercial-pitch-banner {
+            background: linear-gradient(90deg, #102126 0%, #061114 100%);
+            border: 1px solid var(--hud-border-cyan);
+            border-radius: 4px;
+            padding: 8px 14px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            grid-column: 1 / -1;
+            box-shadow: 0 0 10px rgba(0, 225, 255, 0.15);
         }
     </style>
+</head>
+<body>
 
-    <script>
-        // INYECTAR LA ESTRUCTURA DEL PANEL IZQUIERDO DIRECTAMENTE EN SU ANCLAJE
-        document.getElementById('anchor-left-panel').outerHTML = `
+    <header class="axiom-header">
+        <div class="title-container">
+            <h1>AXIOM FLORA</h1>
+            <span>EL IMPERIO VERDE INDEPENDIENTE // STREET BOTANY</span>
+        </div>
+        <div class="global-telemetry-bar">
+            <div class="telemetry-node">REP CALLEJERA: <strong id="lbl-rep" style="color:var(--hud-border-amber);">1.00</strong></div>
+            <div class="telemetry-node">BALANCE: <strong id="lbl-coins" style="color:var(--hud-border-green);">12500.00 AC</strong></div>
+            <div class="telemetry-node">P2P SYNC: <span style="color:var(--hud-border-cyan);">1.5ms FLAT</span></div>
+        </div>
+    </header>
+
+    <main class="game-canvas-master">
+        
         <section class="hud-panel">
             <div class="panel-header-anchor">
                 <span>🛒 UNCENSORED MARKET (100% FREE)</span>
-                <span style="color:var(--text-dark);">CATALOG_V21</span>
+                <span style="color:#4a6355;">CATALOG_V1</span>
             </div>
             <div class="panel-body-scroll">
-                
-                <!-- MENÚ DE SELECCIÓN DE BOTÁNICA INTERACTIVA -->
-                <div style="font-size:10px; color:var(--text-dark); font-weight:bold; letter-spacing:0.5px;">SELECT BOTANICAL SPECIMEN:</div>
-                
-                <div class="market-grid-container" id="market-catalog-dom-injection">
-                    <!-- Tarjeta 1: Medical Cannabis -->
+                <div class="market-grid-container">
                     <div class="plant-catalog-card selected" onclick="selectCatalogItem('cannabis', 10, this)">
                         <div class="card-image-emulation"><span>🌿</span></div>
                         <div class="card-meta-title">MEDICAL CANNABIS</div>
                         <div class="card-price-tag">10.00 AC</div>
                     </div>
-                    <!-- Tarjeta 2: Exotic Plants -->
                     <div class="plant-catalog-card" onclick="selectCatalogItem('amazonian', 25, this)">
                         <div class="card-image-emulation"><span>🌵</span></div>
                         <div class="card-meta-title">AMAZONIAN EXOTIC</div>
                         <div class="card-price-tag">25.00 AC</div>
                     </div>
-                    <!-- Tarjeta 3: Shamanic Botany -->
                     <div class="plant-catalog-card" onclick="selectCatalogItem('shamanic', 50, this)">
                         <div class="card-image-emulation"><span>🍄</span></div>
                         <div class="card-meta-title">SHAMANIC BOTANY</div>
                         <div class="card-price-tag">50.00 AC</div>
                     </div>
-                    <!-- Tarjeta 4: Neighbors Leftovers -->
                     <div class="plant-catalog-card" onclick="selectCatalogItem('nutrients', 15, this)">
                         <div class="card-image-emulation"><span>🧪</span></div>
                         <div class="card-meta-title">LEFTOVER SOIL</div>
@@ -425,379 +415,149 @@
                     </div>
                 </div>
 
-                <!-- ACCIÓN DE INYECCIÓN / ADQUISICIÓN GENÉTICA -->
                 <button class="btn-action-spec" id="btn-deploy-seed-action" style="width: 100%;">
-                    GERMINAR EN SEMILLA VIRTUAL
+                    PLANT SEED (GERMINAR)
                 </button>
 
-                <!-- INTERFAZ INTEGRADA DE AXIOM PLANT MAPS -->
-                <div style="border-top: 1px dashed rgba(57, 229, 138, 0.2); padding-top: 10px; margin-top: auto;">
-                    <div style="font-size:10px; color:var(--hud-border-cyan); font-weight:bold; margin-bottom:6px; letter-spacing:0.5px;">🗺️ AXIOM PLANT MAPS (LOCAL GEOLOCATION)</div>
-                    
+                <div style="border-top: 1px dashed rgba(57, 229, 138, 0.2); padding-top: 8px;">
+                    <div style="font-size:9px; color:var(--hud-border-cyan); font-weight:bold; margin-bottom:4px;">🗺️ AXIOM PLANT MAPS (SPATIAL HASH GRID)</div>
                     <div class="map-interactive-module">
                         <canvas id="mini-map-canvas"></canvas>
-                        <div class="map-floating-tags" id="map-district-label">DISTRICT SECTOR: ACTIVE</div>
-                    </div>
-                    
-                    <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:10px; color:var(--text-dark);">
-                        <span>STREET COMMERCE NETWORK</span>
-                        <span id="lbl-connected-neighbors" style="color:var(--hud-border-cyan);">NEIGHBORS: 4 NEARBY</span>
+                        <div class="map-floating-tags" id="lbl-gps-node">CELL: WGS84_H_0_0</div>
                     </div>
                 </div>
-
             </div>
         </section>
-        `;
-    </script>
-    <style>
-        /* ESTILOS GRÁFICOS PARA LAS BARRAS DE ESTADO DEL HUD */
-        .hud-metric-row {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 8px;
-            border: 1px solid rgba(57, 229, 138, 0.1);
-            border-radius: 4px;
-        }
 
-        .hud-metric-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
+        <section class="ar-viewframe-center" id="center-zone-parent">
+            <video id="ar-video-feed" autoplay playsinline muted></video>
+            <canvas id="ar-canvas-layer"></canvas>
 
-        .hud-progress-track {
-            background: #050806;
-            border: 1px solid #1b3527;
-            height: 12px;
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
+            <div class="ar-hud-overlay">
+                <div class="ar-center-hologram-controls" style="width: 100%;">
+                    <div>LIGHT MATRIX STATUS: <span style="color:var(--hud-border-green);">ARMÓNICOS ESFÉRICOS OK</span></div>
+                    <button class="btn-ar-toggle" id="btn-request-ar-camera" onclick="initiateHardwareARCamera()">
+                        VIEW IN AR (CAMARA)
+                    </button>
+                </div>
+                <div class="ar-center-hologram-controls" style="justify-content: center; font-weight: bold;">
+                    <span id="btn-hud-clone-status" style="color:#4a6355;">BIOLOGICAL CLONING WINDOW: CLOSED</span>
+                </div>
+            </div>
+        </section>
 
-        .hud-progress-fill {
-            height: 100%;
-            width: 0%; /* Manipulado dinámicamente */
-            background: var(--hud-border-green);
-            box-shadow: 0 0 8px rgba(57, 229, 138, 0.5);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .hud-progress-fill.fill-cyan { background: var(--hud-border-cyan); box-shadow: 0 0 8px rgba(0, 225, 255, 0.5); }
-        .hud-progress-fill.fill-amber { background: var(--hud-border-amber); box-shadow: 0 0 8px rgba(255, 170, 0, 0.5); }
-        .hud-progress-fill.fill-red { background: var(--hud-border-red); box-shadow: 0 0 8px rgba(255, 74, 74, 0.5); }
-
-        /* REJILLA DE MEDALLAS / LOGROS (FIDELIDAD A LA IMAGEN 4011.png) */
-        .badges-profile-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .badge-interactive-slot {
-            background: rgba(4, 7, 6, 0.8);
-            border: 1px solid #1b3527;
-            border-radius: 6px;
-            padding: 8px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            opacity: 0.4;
-            transition: all 0.3s ease;
-        }
-
-        .badge-interactive-slot.unlocked-good {
-            opacity: 1;
-            border-color: var(--hud-border-amber);
-            background: rgba(255, 170, 0, 0.03);
-            box-shadow: 0 0 8px rgba(255, 170, 0, 0.1);
-        }
-
-        .badge-interactive-slot.unlocked-bad {
-            opacity: 1;
-            border-color: var(--hud-border-red);
-            background: rgba(255, 74, 74, 0.05);
-            animation: pulse-border-alert 2s infinite ease-in-out;
-        }
-
-        .badge-icon-frame {
-            font-size: 22px;
-            filter: grayscale(100%);
-        }
-        .unlocked-good .badge-icon-frame, .unlocked-bad .badge-icon-frame {
-            filter: grayscale(0%);
-        }
-
-        .badge-label-title {
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        @keyframes pulse-border-alert {
-            0% { border-color: rgba(255, 74, 74, 0.2); }
-            50% { border-color: rgba(255, 74, 74, 0.7); }
-            100% { border-color: rgba(255, 74, 74, 0.2); }
-        }
-    </style>
-
-    <script>
-        // INYECTAR LA ESTRUCTURA DEL PANEL DERECHO DIRECTAMENTE EN SU ANCLAJE
-        document.getElementById('anchor-right-panel').outerHTML = `
         <section class="hud-panel panel-amber">
             <div class="panel-header-anchor amber-text">
                 <span>🌱 ACTIVE GENETIC SIMULATION</span>
                 <span id="lbl-specimen-id-tag">ID: STANDBY</span>
             </div>
-            
             <div class="panel-body-scroll">
                 
                 <div class="hud-metric-row">
-                    <div class="hud-metric-header">
-                        <span>SALUD BIOLÓGICA (VeroHealth)</span>
-                        <span id="txt-hud-health" style="color:var(--hud-border-green);">0%</span>
-                    </div>
-                    <div class="hud-progress-track">
-                        <div class="hud-progress-fill" id="bar-hud-health"></div>
-                    </div>
+                    <div class="hud-metric-header"><span>SALUD BIOLÓGICA (VeroHealth)</span><span id="txt-hud-health">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill" id="bar-hud-health"></div></div>
                 </div>
-
                 <div class="hud-metric-row">
-                    <div class="hud-metric-header">
-                        <span>HIDRATACIÓN DE SUSTRATO</span>
-                        <span id="txt-hud-hydrate" style="color:var(--hud-border-cyan);">0%</span>
-                    </div>
-                    <div class="hud-progress-track">
-                        <div class="hud-progress-fill fill-cyan" id="bar-hud-hydrate"></div>
-                    </div>
+                    <div class="hud-metric-header"><span>HIDRATACIÓN SUSTRATO</span><span id="txt-hud-hydrate" style="color:var(--hud-border-cyan);">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill fill-cyan" id="bar-hud-hydrate"></div></div>
                 </div>
-
                 <div class="hud-metric-row">
-                    <div class="hud-metric-header">
-                        <span>ESTRÉS LUMÍNICO / TÉRMICO</span>
-                        <span id="txt-hud-stress" style="color:var(--hud-border-amber);">0%</span>
-                    </div>
-                    <div class="hud-progress-track">
-                        <div class="hud-progress-fill fill-amber" id="bar-hud-stress"></div>
-                    </div>
+                    <div class="hud-metric-header"><span>ESTRÉS LUMÍNICO / TÉRMICO</span><span id="txt-hud-stress" style="color:var(--hud-border-amber);">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill fill-amber" id="bar-hud-stress"></div></div>
                 </div>
-
                 <div class="hud-metric-row">
-                    <div class="hud-metric-header">
-                        <span>CURADO EN BOTES (HUMEDAD)</span>
-                        <span id="txt-hud-cure" style="color:var(--hud-border-red);">0%</span>
-                    </div>
-                    <div class="hud-progress-track">
-                        <div class="hud-progress-fill fill-red" id="bar-hud-cure"></div>
-                    </div>
+                    <div class="hud-metric-header"><span>CURADO EN BOTES (HUMEDAD)</span><span id="txt-hud-cure" style="color:var(--hud-border-red);">0%</span></div>
+                    <div class="hud-progress-track"><div class="hud-progress-fill fill-red" id="bar-hud-cure"></div></div>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px;">
-                    <div class="hud-metric-row" style="padding:6px; text-align:center;">
-                        <span style="color:var(--text-dark); font-size:9px;">GENETIC SEX</span>
-                        <strong id="txt-hud-sex" style="letter-spacing:0.5px;">NONE</strong>
+                    <div class="hud-metric-row" style="padding:4px; text-align:center;">
+                        <span style="color:#4a6355; font-size:8px;">GENÉTICA ACTUAL</span>
+                        <strong id="txt-hud-sex">NONE</strong>
                     </div>
-                    <div class="hud-metric-row" style="padding:6px; text-align:center;">
-                        <span style="color:var(--text-dark); font-size:9px;">TERPENE MULTIPLIER</span>
+                    <div class="hud-metric-row" style="padding:4px; text-align:center;">
+                        <span style="color:#4a6355; font-size:8px;">TERPENE MULTIPLIER</span>
                         <strong id="txt-hud-terpenes" style="color:var(--hud-border-cyan);">1.0x</strong>
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                    <button class="btn-action-spec" id="btn-hud-water" style="border-color:var(--hud-border-cyan); color:#fff; background:rgba(0,225,255,0.05);" disabled>REGAR</button>
-                    <button class="btn-action-spec" id="btn-hud-air" style="border-color:var(--hud-border-amber); color:#fff; background:rgba(255,170,0,0.05);" disabled>AIREAR BOTE</button>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                    <button class="btn-action-spec" id="btn-hud-water" disabled>REGAR CULTIVO</button>
+                    <button class="btn-action-spec" id="btn-hud-air" disabled>AIREAR BOTE</button>
                 </div>
 
-                <div style="border-top: 1px dashed rgba(255, 170, 0, 0.2); padding-top: 10px; margin-top: auto;">
-                    <div style="font-size:10px; color:var(--hud-border-amber); font-weight:bold; margin-bottom:8px; letter-spacing:0.5px; display:flex; justify-content:between;">
+                <button class="btn-action-spec" id="btn-hud-sell-p2p" style="border-color:var(--hud-border-cyan); background:rgba(0,225,255,0.03);" disabled>
+                    SELL IN P2P MARKET (LIQUIDAR)
+                </button>
+
+                <div style="border-top: 1px dashed rgba(255, 170, 0, 0.2); padding-top: 6px; margin-top: auto;">
+                    <div style="font-size:9px; color:var(--hud-border-amber); font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between;">
                         <span>🏆 DISPLAY PROFILE BADGES</span>
                         <span id="lbl-badge-count-ratio">0/4 UNLOCKED</span>
                     </div>
-                    
                     <div class="badges-profile-grid">
-                        <div class="badge-interactive-slot" id="slot-badge-2">
-                            <div class="badge-icon-frame">🥇</div>
-                            <div class="badge-label-title">HARDCORE GROWER</div>
-                        </div>
-                        <div class="badge-interactive-slot" id="slot-badge-3">
-                            <div class="badge-icon-frame">🛰️</div>
-                            <div class="badge-label-title">MAESTRO CLONADOR</div>
-                        </div>
-                        <div class="badge-interactive-slot" id="slot-badge-1">
-                            <div class="badge-icon-frame">💀</div>
-                            <div class="badge-label-title">GERANIUM KILLER</div>
-                        </div>
-                        <div class="badge-interactive-slot" id="slot-badge-0">
-                            <div class="badge-icon-frame">🍄</div>
-                            <div class="badge-label-title">REY DEL MOHO</div>
-                        </div>
+                        <div class="badge-interactive-slot" id="slot-badge-2"><div class="badge-icon-frame">🥇</div><div class="badge-label-title">HARDCORE GROWER</div></div>
+                        <div class="badge-interactive-slot" id="slot-badge-3"><div class="badge-icon-frame">🛰️</div><div class="badge-label-title">MAESTRO CLONADOR</div></div>
+                        <div class="badge-interactive-slot" id="slot-badge-1"><div class="badge-icon-frame">💀</div><div class="badge-label-title">GERANIUM KILLER</div></div>
+                        <div class="badge-interactive-slot" id="slot-badge-0"><div class="badge-icon-frame">🍄</div><div class="badge-label-title">REY DEL MOHO</div></div>
                     </div>
                 </div>
-
             </div>
         </section>
-        `;
-    </script>
-    <style>
-        /* DISPOSICIÓN DE LOS ELEMENTOS DE TRÁFICO DE DATOS INFERIORES */
-        .bottom-hustle-terminal {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 15px;
-            height: 135px;
-            margin-top: auto;
-            z-index: 10;
-        }
 
-        .rust-backend-stream {
-            background: rgba(3, 6, 5, 0.9);
-            border: 1px solid rgba(57, 229, 138, 0.15);
-            border-radius: 6px;
-            padding: 10px;
-            overflow-y: auto;
-            list-style: none;
-            font-size: 11px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-        }
-        .rust-backend-stream li {
-            margin-bottom: 4px;
-            line-height: 14px;
-        }
-
-        .ai-street-coach-card {
-            background: var(--hud-bg-opaque);
-            border: 1px solid rgba(0, 225, 255, 0.2);
-            border-radius: 6px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .coach-speech-bubble {
-            background: #040706;
-            border: 1px dashed rgba(0, 225, 255, 0.2);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            line-height: 14px;
-            color: #b3f0ff;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        /* DISEÑO DE BOTONES FLOTANTES SOBRE EL CANVA CENTRAL DE LA PLANTA */
-        .ar-center-hologram-controls {
-            background: rgba(13, 22, 18, 0.85);
-            border: 1px solid rgba(57, 229, 138, 0.3);
-            border-radius: 4px;
-            padding: 8px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-        }
-
-        .btn-ar-toggle {
-            background: #11252b;
-            border: 1px solid var(--hud-border-cyan);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-        .btn-ar-toggle:hover {
-            background: var(--hud-border-cyan);
-            color: var(--bg-dark);
-            box-shadow: 0 0 10px var(--text-glow-cyan);
-        }
-    </style>
-
-    <script>
-        // 1. INYECTAR LA BOTONERA DE CONTROL INMEDIATO EN LA ZONA AR CENTRAL
-        document.getElementById('anchor-center-hud').innerHTML = `
-            <div class="ar-center-hologram-controls" style="width: 100%;">
-                <div>AR HARDWARE ESTIMATION: <span id="lbl-light-probe-status" style="color:var(--hud-border-green);">STABLE (SH COEFFS)</span></div>
-                <button class="btn-ar-toggle" id="btn-request-ar-camera" onclick="initiateHardwareARCamera()">
-                    ACTIVAR MODO CAMARA AR
-                </button>
-            </div>
-            
-            <div class="ar-center-hologram-controls" style="justify-content: center; font-weight: bold; letter-spacing: 0.5px;">
-                <span id="btn-hud-clone-status">BIOLOGICAL CLONING WINDOW: CLOSED</span>
-            </div>
-        `;
-
-        // 2. CREAR E INYECTAR LA CONSOLA DE REGISTROS DE RED RUST Y EL AI MENTOR ABAJO DEL TODO
-        const mainGridParent = document.querySelector('.game-canvas-master');
-        const bottomPanelElement = document.createElement('section');
-        bottomPanelElement.className = 'bottom-hustle-terminal';
-        bottomPanelElement.innerHTML = `
+        <section class="bottom-hustle-terminal">
             <ul class="rust-backend-stream" id="rust-network-terminal-stream">
-                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[RUST_BACKEND]</span> Nodo de red síncrono inicializado. [span_1](start_span)Ejecutando barrido de proximidad BLE de 400ms[span_1](end_span).</li>
-                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[RUST_BACKEND]</span> Verificación de integridad superada con éxito. [span_2](start_span)[span_3](start_span)Esperando compra de clon o semilla libre[span_2](end_span)[span_3](end_span).</li>
+                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[RUST_BACKEND]</span> Nodo síncrono activo. Barrido BLE inicializado con éxito.</li>
             </ul>
 
             <div class="ai-street-coach-card">
-                <div style="font-size:10px; font-weight:bold; color:var(--hud-border-cyan); letter-spacing:0.5px;">🤖 AI MENTOR // BOTANICAL KNOWLEDGE</div>
+                <div style="font-size:9px; font-weight:bold; color:var(--hud-border-cyan);">🤖 AI MENTOR // BOTANICAL KNOWLEDGE</div>
                 <div class="coach-speech-bubble" id="txt-ai-coach-bubble">
-                    [span_4](start_span)"Buenas jefe. El mercado está libre de filtros corporativos. Elige un espécimen en el catálogo de la izquierda, gasta unas Axiom Coins y arranca tu granja virtual. Si activas la cámara AR, proyectaremos la planta en tu mesa real empleando los armónicos del entorno[span_4](end_span)."
+                    "Buenas jefe. El mercado está listo. Compra una semilla en el catálogo de la izquierda y mira los Días de Crecimiento subir. Si activas la cámara AR, proyectaremos los vectores de la planta en tu mesa real."
                 </div>
             </div>
-        `;
-        mainGridParent.appendChild(bottomPanelElement);
-    </script>
+        </section>
+
+        <div style="grid-column: 1 / -1; background:rgba(0,0,0,0.4); border:1px solid #1b3527; padding:8px; border-radius:4px; display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:-5px; z-index:10;">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+                <label style="font-size:9px; color:#4a6355;">VELOCIDAD GPS MULA (MESSENGER): <span id="lbl-speed-val" style="color:var(--hud-border-amber);">0 km/h</span></label>
+                <input type="range" id="sim-speed" min="0" max="50" value="0" style="accent-color:var(--hud-border-amber); width:100%;">
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+                <label style="font-size:9px; color:#4a6355;">DENSIDAD ENTORNO (REGIONAL PESTS): <span id="lbl-pests-val" style="color:var(--hud-border-red);">5%</span></label>
+                <input type="range" id="sim-pests" min="0" max="100" value="5" style="accent-color:var(--hud-border-red); width:100%;">
+            </div>
+        </div>
+
+        <footer class="commercial-pitch-banner">
+            <div style="font-weight: bold; color: #fff; letter-spacing: 0.5px;">⚠️ AXION SYSTEMS COMMERCIAL ENGINE // DEMO VERSION</div>
+            <div style="color: var(--hud-border-cyan); font-weight: bold; text-shadow: 0 0 5px rgba(0,225,255,0.4);">
+                COMMERCIAL LICENSE AVAILABLE — Full version with real genetics + true AR + P2P sync &rarr; Contact me
+            </div>
+        </footer>
+
+    </main>
+
+    <div class="roast-popup-overlay" id="public-roast-popup">
+        <div class="roast-modal">
+            <div style="font-size: 36px; color: var(--hud-border-red); margin-bottom: 8px;">⚠️</div>
+            <h2 style="color: #fff; font-size: 14px; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase;">PUBLIC ROASTING TRIGGERED!</h2>
+            <p id="roast-popup-message" style="color: #ffb3b3; font-size: 12px; margin-bottom: 18px; font-weight: bold; line-height: 15px;"></p>
+            <button class="btn-action-spec" id="btn-close-roast" style="background:#401515; border-color:var(--hud-border-red); color:#fff; padding:6px 20px;">OK</button>
+        </div>
+    </div>
+
     <script>
-        // --- DATA STRUCTURE ALIGNED WITH CPU CACHE LINES (FAxiomPlantGeneticData) ---
         const ENGINE_STATE = {
-            player: {
-                axiomCoins: 1000.0,
-                streetReputation: 1.0,
-                bitmask: new Uint32Array(8), // Capacidad para 250 misiones buenas + 250 malas sin GC spikes
-                unlockedBadges: [false, false, false, false]
-            },
-            plant: {
-                active: false,
-                id: 0,
-                type: "none", // cannabis, amazonian, shamanic, nutrients
-                geneticSex: "None", // Male, Female, Hermaphrodite
-                tier: 1,
-                healthLevel: 1.0, // VeroHealth
-                hydrationLevel: 1.0,
-                stressLevel: 0.0,
-                pestInfectionRatio: 0.0,
-                moistureContent: 0.0,
-                chlorophyllDecay: 0.0,
-                terpeneMultiplier: 1.0,
-                isCured: false,
-                isAeterna: false,
-                lastCheckedTimestamp: 0
-            },
-            motherPlants: {
-                hasMother: false,
-                clonesAvailable: 0
-            },
-            selectedItem: {
-                type: "cannabis",
-                cost: 10
-            }
+            player: { axiomCoins: 12500.0, streetReputation: 1.0, bitmask: new Uint32Array(8), unlockedBadges: [false, false, false, false] },
+            plant: { active: false, id: 0, type: "none", geneticSex: "None", tier: 1, growthDays: 0, healthLevel: 1.0, hydrationLevel: 1.0, stressLevel: 0.0, pestInfectionRatio: 0.0, moistureContent: 0.0, chlorophyllDecay: 0.0, terpeneMultiplier: 1.0, isCured: false, isAeterna: false, lastCheckedTimestamp: 0 },
+            simulation: { muleSpeed: 0, regionalPests: 5, baseMarketPrice: 120 },
+            selectedItem: { type: "cannabis", cost: 10 }
         };
 
-        // CONSTANTES FÍSICAS DE LA EVALUACIÓN NO LINEAL
         const EvaporationBaseRate = 0.015;
         const GrowthIntervalSecs = 1;
 
-        // MANEJADOR DE CONSOLA DEL BACKEND DE RUST
         function logToRustNetwork(system, text, type) {
             const stream = document.getElementById('rust-network-terminal-stream');
             const timeStr = new Date().toTimeString().split(' ')[0];
@@ -805,39 +565,37 @@
             li.innerHTML = `<span class="t-time">[${timeStr}]</span><span class="t-tag ${type}">[${system}]</span>${text}`;
             stream.appendChild(li);
             stream.scrollTop = stream.scrollHeight;
-            if (stream.children.length > 30) stream.removeChild(stream.children[0]);
+            if (stream.children.length > 25) stream.removeChild(stream.children[0]);
         }
 
-        // CONTROL DE SELECCIÓN DEL CATÁLOGO DEL MERCADO INTERACTIVO
         function selectCatalogItem(type, cost, element) {
+            triggerAudioTone();
             document.querySelectorAll('.plant-catalog-card').forEach(card => card.classList.remove('selected'));
             element.classList.add('selected');
             ENGINE_STATE.selectedItem.type = type;
             ENGINE_STATE.selectedItem.cost = cost;
-            logToRustNetwork("MARKET_P2P", `Seleccionado espécimen [${type.toUpperCase()}]. Coste: ${cost} AC.`, "info");
+            logToRustNetwork("MARKET_P2P", `Fijado objetivo: [${type.toUpperCase()}]. Coste de transacción: ${cost} AC.`, "info");
         }
 
-        // CONTROLADOR DE COMPRA Y GERMINACIÓN DE LA VIRTUAL FARM
         document.getElementById('btn-deploy-seed-action').addEventListener('click', () => {
+            initWebAudioContextDriver();
             triggerAudioTone();
             const player = ENGINE_STATE.player;
             const item = ENGINE_STATE.selectedItem;
             
-            // Comprobar saldo en la Wallet
             if (player.axiomCoins < item.cost) {
-                logToRustNetwork("ANTI_CHEAT", "Transacción bloqueada: Saldo de Axiom Coins insuficiente.", "bad");
-                document.getElementById('txt-ai-coach-bubble').innerText = '"Oye socio, estás limpio en la calle. No tienes suficientes Axiom Coins para pagarle al proveedor del vivero. Vende algún lote o muévete por el mapa para rascar algo."';
+                logToRustNetwork("ANTI_CHEAT", "Transacción rechazada: Saldo de Axiom Coins insuficiente.", "bad");
+                document.getElementById('txt-ai-coach-bubble').innerText = '"Oye socio, vas limpio por el barrio. No te quedan Axiom Coins para pagar este espécimen. Mueve la mola a pie o vende material rápido."';
                 return;
             }
 
-            // Descontar saldo de la transacción cifrada en Rust
             player.axiomCoins -= item.cost;
             
-            // Instanciar el Actor Botánico Base sin hilos redundantes Tick
             const p = ENGINE_STATE.plant;
             p.active = true;
             p.id = Math.floor(100000 + Math.random() * 899999);
             p.type = item.type;
+            p.growthDays = 0;
             p.healthLevel = 1.0;
             p.hydrationLevel = 1.0;
             p.stressLevel = 0.0;
@@ -848,48 +606,74 @@
             p.isCured = false;
             p.lastCheckedTimestamp = Math.floor(Date.now() / 1000);
 
-            // Algoritmo Determinístico: 100% aleatorio si sale Macho o Hembra
             p.geneticSex = Math.random() > 0.45 ? "Female" : "Male";
             p.tier = item.cost >= 25 ? 2 : 1;
 
-            logToRustNetwork("RUST_SERVER", `Germinación en celda Spatial Hash completada. ID del Actor: #AX-${p.id}. Sexo: ${p.geneticSex.toUpperCase()}`, "good");
+            logToRustNetwork("RUST_SERVER", `Inyección de ADN completada. ID: #AX-${p.id}. Genética: ${p.geneticSex.toUpperCase()}`, "good");
             
-            // Activar pasarelas de control en el HUD
             document.getElementById('btn-hud-water').disabled = false;
+            document.getElementById('btn-hud-sell-p2p').disabled = false;
             document.getElementById('btn-hud-air').disabled = true;
 
             if (p.geneticSex === "Female") {
-                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL CLONING WINDOW: OPEN";
+                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL WINDOW: OPEN (READY TO CLONE)";
                 document.getElementById('btn-hud-clone-status').style.color = "var(--hud-border-green)";
             } else {
-                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL WINDOW: MALE POLLEN RISK";
+                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL WINDOW: WARNING (MALE POLLEN RISK)";
                 document.getElementById('btn-hud-clone-status').style.color = "var(--hud-border-amber)";
             }
 
             syncVisualDOM();
         });
 
-        // ACCIONES COMPLEMENTARIAS: REGAR
         document.getElementById('btn-hud-water').addEventListener('click', () => {
             triggerAudioTone();
             if (!ENGINE_STATE.plant.active || ENGINE_STATE.plant.healthLevel <= 0) return;
-            ENGINE_STATE.plant.hydrationLevel = Math.min(1.0, ENGINE_STATE.plant.hydrationLevel + 0.3);
-            logToRustNetwork("CULTIVO_AR", "Inyección local de nutrientes e hidratación al sustrato.", "good");
+            ENGINE_STATE.plant.hydrationLevel = Math.min(1.0, ENGINE_STATE.plant.hydrationLevel + 0.35);
+            logToRustNetwork("CULTIVO_AR", "Sustrato hidratado. Absorción de nutrientes estabilizada.", "good");
             syncVisualDOM();
         });
 
-        // ACCIONES COMPLEMENTARIAS: AIREAR BOTE DE CURADO
         document.getElementById('btn-hud-air').addEventListener('click', () => {
             triggerAudioTone();
             const p = ENGINE_STATE.plant;
             if (!p.active || p.moistureContent === 0) return;
-            // Ventilar la humedad estancada antes de que coja moho total
             p.moistureContent = Math.max(0.12, p.moistureContent - 0.25);
-            logToRustNetwork("CURING_ROOM", "Apertura manual del frasco hermético: Humedad purgada.", "info");
+            logToRustNetwork("CURING_ROOM", "Frasco abierto: Humedad purgada para mitigar moho.", "info");
             syncVisualDOM();
         });
 
-        // EVALUACIÓN NO LINEAL POR DELTAS DE TIEMPO (UNIX TIMESTAMPS)
+        document.getElementById('btn-hud-sell-p2p').addEventListener('click', () => {
+            triggerAudioTone();
+            const p = ENGINE_STATE.plant;
+            const sim = ENGINE_STATE.simulation;
+            if (!p.active) return;
+
+            let payout = sim.baseMarketPrice * p.terpeneMultiplier * ENGINE_STATE.player.streetReputation * 10;
+            
+            if (p.geneticSex === "Male") {
+                payout = 15;
+                logToRustNetwork("BROKER_WARN", "Has liquidado un cultivo Macho sin resina. Penalización de valor aplicada.", "bad");
+            }
+
+            if (sim.muleSpeed > 30) {
+                payout *= 0.5;
+                logToRustNetwork("LOGISTICS", "Calidad biológica mermada un 50% por exceder los 30 km/h en el transporte.", "bad");
+            }
+
+            ENGINE_STATE.player.axiomCoins += payout;
+            logToRustNetwork("MARKET_P2P", `Lote liquidado de forma segura. Wallet inyectada con +${payout.toFixed(2)} AC.`, "good");
+
+            p.active = false;
+            document.getElementById('btn-hud-water').disabled = true;
+            document.getElementById('btn-hud-sell-p2p').disabled = true;
+            document.getElementById('btn-hud-air').disabled = true;
+            document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL CLONING WINDOW: CLOSED";
+            document.getElementById('btn-hud-clone-status').style.color = "#4a6355";
+
+            syncVisualDOM();
+        });
+
         function evaluateBiologicalLazyPipeline() {
             const p = ENGINE_STATE.plant;
             if (!p.active || p.healthLevel <= 0) return;
@@ -901,117 +685,102 @@
             const simSpeed = parseFloat(document.getElementById('sim-speed').value);
             const simPests = parseFloat(document.getElementById('sim-pests').value);
 
-            // 1. Drenaje de Hidratación e impacto de plagas configuradas en HUD
+            p.growthDays += 1; // Contador de crecimiento real interactivo
+
             p.hydrationLevel = Math.max(0.0, p.hydrationLevel - (EvaporationBaseRate * delta));
-            if (simPests > 15) {
-                p.pestInfectionRatio = Math.min(1.0, p.pestInfectionRatio + (0.008 * delta));
+            if (simPests > 20) {
+                p.pestInfectionRatio = Math.min(1.0, p.pestInfectionRatio + (0.01 * delta));
             }
 
-            // 2. Acumulación de Estrés Lumínico/Térmico e inversión metabólica
-            if (p.hydrationLevel < 0.25 || p.pestInfectionRatio > 0.45) {
-                p.stressLevel = Math.min(1.0, p.stressLevel + (0.06 * delta));
-                p.healthLevel = Math.max(0.0, p.healthLevel - (0.05 * delta));
+            if (p.hydrationLevel < 0.20 || p.pestInfectionRatio > 0.40) {
+                p.stressLevel = Math.min(1.0, p.stressLevel + (0.08 * delta));
+                p.healthLevel = Math.max(0.0, p.healthLevel - (0.06 * delta));
             } else {
-                p.stressLevel = Math.max(0.0, p.stressLevel - (0.03 * delta));
+                p.stressLevel = Math.max(0.0, p.stressLevel - (0.04 * delta));
+                p.healthLevel = Math.min(1.0, p.healthLevel + (0.02 * delta));
             }
 
-            // 3. Mutación de Sexo por estrés (Hermafroditismo inducido del GDD)
-            if (p.stressLevel > 0.82 && p.geneticSex === "Female") {
+            if (p.stressLevel > 0.80 && p.geneticSex === "Female") {
                 p.geneticSex = "Hermaphrodite";
-                logToRustNetwork("GENETIC_CORE", "Mutación de emergencia: Estructura variada a Hermafrodita por estrés.", "bad");
+                logToRustNetwork("GENETIC_MUTATION", "Alerta de inestabilidad: Cepa mutada a Hermafrodita por estrés hídrico.", "bad");
             }
 
-            // 4. Mecánica de Daños de Transporte si la velocidad supera 30 km/h
-            if (simSpeed > 30) {
-                p.healthLevel = Math.max(0.0, p.healthLevel - (0.08 * delta));
-                if (Math.random() > 0.7) {
-                    logToRustNetwork("LOGISTICS_FAIL", "Lote dañado: Movimiento de mula superior a 30 km/h.", "bad");
-                }
-            }
-
-            // 5. Transición Automática a Secado/Curado si se deja secar a propósito
             if (p.hydrationLevel === 0 && !p.isCured) {
                 if (p.moistureContent === 0) {
-                    p.moistureContent = 0.75;
+                    p.moistureContent = 0.70;
                     document.getElementById('btn-hud-air').disabled = false;
-                    logToRustNetwork("BROKER", "Cosecha forzada por sequía: Producto en fase de curado hermético.", "info");
+                    logToTerminalCoach('"¡Ojo jefe! Tu planta se ha secado y ha pasado al bote de curado automáticamente. Monitorea la humedad o se te pudrirá el lote entero."');
                 } else {
-                    // Simulación del moho vs degradación perfecta de clorofila
-                    p.moistureContent = Math.min(1.0, p.moistureContent + (0.03 * delta));
-                    p.chlorophyllDecay = Math.min(1.0, p.chlorophyllDecay + (0.05 * delta));
+                    p.moistureContent = Math.min(1.0, p.moistureContent + (0.04 * delta));
+                    p.chlorophyllDecay = Math.min(1.0, p.chlorophyllDecay + (0.06 * delta));
 
                     if (p.moistureContent > 0.85) {
-                        p.healthLevel = 0; // Se pudre del todo
-                        triggerSavageAchievement(0, true); // Desbloquea logro Rey del Moho
-                    } else if (p.chlorophyllDecay >= 0.9) {
+                        p.healthLevel = 0;
+                        triggerSavageAchievement(0, true);
+                    } else if (p.chlorophyllDecay >= 0.90) {
                         p.isCured = true;
-                        p.terpeneMultiplier = 3.0; // Multiplica el precio por 3
-                        logToRustNetwork("CURING_ROOM", "¡Curado óptimo! Clorofila destruida. Terpenos x3.", "good");
-                        triggerSavageAchievement(2, false); // Logro Botánico Experto
+                        p.terpeneMultiplier = 3.0;
+                        logToRustNetwork("CURING_ROOM", "Curado completado con éxito. Perfil de terpenos multiplicado x3.", "good");
+                        triggerSavageAchievement(2, false);
                     }
                 }
             }
 
-            // 6. Comprobación del Protocolo de Muerte Permanente (Permadeath)
             if (p.healthLevel <= 0) {
                 p.healthLevel = 0;
-                triggerSavageAchievement(1, true); // Logro Geranium Killer
-                logToRustNetwork("SERVER_BACKEND", `PERMADEATH PROTOCOL ejecutado para #AX-${p.id}. Geometría destruida.`, "bad");
-                
-                // Forzar arrojo de Semilla Corrupta en el Spatial Hash actual
-                logToRustNetwork("DEAD_DROP", `Semilla Corrupta liberada en las coordenadas de la celda actual.`, "info");
-                
-                document.getElementById('btn-hud-water').disabled = true;
-                document.getElementById('btn-hud-air').disabled = true;
+                triggerSavageAchievement(1, true);
+                logToRustNetwork("PERMADEATH", `Instancia #AX-${p.id} colapsada. Niagara Particles despachadas al mapa real.`, "bad");
             }
 
             p.lastCheckedTimestamp = now;
             syncVisualDOM();
         }
 
-        // CONTROLADOR DE SINK DEL DISPATCHER DE LOGROS POR BITMASK
         function triggerSavageAchievement(index, isBad) {
-            const wordIndex = Math.floor(index / 32);
-            const bitIndex = index % 32;
+            const wordIdx = Math.floor(index / 32);
+            const bitIdx = index % 32;
 
-            // Verificar bit con bitmasking directo en caché
-            if ((ENGINE_STATE.player.bitmask[wordIndex] & (1 << bitIndex)) === 0) {
-                ENGINE_STATE.player.bitmask[wordIndex] |= (1 << bitIndex);
+            if ((ENGINE_STATE.player.bitmask[wordIdx] & (1 << bitIdx)) === 0) {
+                ENGINE_STATE.player.bitmask[wordIdx] |= (1 << bitIdx);
                 ENGINE_STATE.player.unlockedBadges[index] = true;
 
-                const targetSlot = document.getElementById(`slot-badge-${index}`);
-                targetSlot.classList.add(isBad ? 'unlocked-bad' : 'unlocked-good');
+                const slot = document.getElementById(`slot-badge-${index}`);
+                slot.classList.add(isBad ? 'unlocked-bad' : 'unlocked-good');
 
                 if (isBad) {
-                    ENGINE_STATE.player.streetReputation = Math.max(-0.5, ENGINE_STATE.player.streetReputation - 0.4);
-                    // Disparar el modal holográfico parpadeante en rojo idéntico a 4011.png
+                    ENGINE_STATE.player.streetReputation = Math.max(-1.0, ENGINE_STATE.player.streetReputation - 0.5);
                     const modal = document.getElementById('public-roast-popup');
                     const msg = document.getElementById('roast-popup-message');
                     modal.style.display = 'flex';
-                    msg.innerText = index === 1 ? `"GERANIUM KILLER (CROP COLLAPSE DETECTED)"` : `"REY DEL MOHO (MOHO TOTAL EN BOTES)"`;
+                    msg.innerText = index === 1 ? `"PUBLIC ROASTING TRIGGERED! GERANIUM KILLER"` : `"PUBLIC ROASTING TRIGGERED! REY DEL MOHO"`;
+                    logToTerminalCoach(index === 1 ? '"¡Vaya manos de trapo, socio! Has dejado colapsar tu planta. Todo el barrio está viendo tu notificación de Geranium Killer en los canales locales."' : '"¡Menuda liada! Tus botes han cogido moho por no airearlos a tiempo. Reputación por los suelos."');
                 } else {
-                    ENGINE_STATE.player.axiomCoins += 500; // Inyectar saldo limpio de recompensa
+                    ENGINE_STATE.player.axiomCoins += 1500;
                     ENGINE_STATE.player.streetReputation = Math.min(2.0, ENGINE_STATE.player.streetReputation + 0.3);
                 }
 
-                // Evaluar si cumple las condiciones del Santo Grial (Axiom Aeterna) al limpiar logros buenos
                 if (ENGINE_STATE.player.unlockedBadges[2] && !ENGINE_STATE.plant.isAeterna) {
                     ENGINE_STATE.plant.isAeterna = true;
-                    logToRustNetwork("HOLY_GRAIL", "¡AXIOM AETERNA ACTIVADA! Desbloqueado render de mallas translúcidas.", "good");
+                    logToRustNetwork("HOLY_GRAIL", "Mallas cuánticas activas: AXIOM AETERNA desbloqueada en la escena AR.", "good");
+                    logToTerminalCoach('"¡Increíble, jefe! Has desbloqueado la Axiom Aeterna, el santo grial de la botánica callejera. Sus filamentos translúcidos ya brillan en tu pantalla central."');
                 }
 
                 syncVisualDOM();
             }
         }
 
+        function logToTerminalCoach(text) {
+            document.getElementById('txt-ai-coach-bubble').innerText = text;
+        }
+
         document.getElementById('btn-close-roast').addEventListener('click', () => {
             document.getElementById('public-roast-popup').style.display = 'none';
         });
 
-        // REFRESCAR LOS VALORES E INDICADORES DE RENDERIZADO DEL DOM
         function syncVisualDOM() {
             const p = ENGINE_STATE.plant;
             const player = ENGINE_STATE.player;
+            const sim = ENGINE_STATE.simulation;
 
             document.getElementById('lbl-coins').innerText = player.axiomCoins.toFixed(2) + " AC";
             document.getElementById('lbl-rep').innerText = player.streetReputation.toFixed(2);
@@ -1029,77 +798,70 @@
             document.getElementById('txt-hud-cure').innerText = Math.floor(p.moistureContent * 100) + "%";
             document.getElementById('bar-hud-cure').style.width = (p.moistureContent * 100) + "%";
 
-            document.getElementById('txt-hud-sex').innerText = p.active ? p.geneticSex.toUpperCase() : "NONE";
-            document.getElementById('txt-hud-sex').style.color = p.geneticSex === "Female" ? "var(--hud-border-green)" : p.geneticSex === "Male" ? "var(--hud-border-amber)" : "#fff";
-            document.getElementById('txt-hud-terpenes').innerText = p.terpeneMultiplier.toFixed(1) + "x";
+            if (p.active) {
+                document.getElementById('txt-hud-sex').innerText = `${p.geneticSex.toUpperCase()} (${p.growthDays}D GROW)`;
+                document.getElementById('txt-hud-sex').style.color = p.geneticSex === "Female" ? "var(--hud-border-green)" : "var(--hud-border-amber)";
+            } else {
+                document.getElementById('txt-hud-sex').innerText = "NONE";
+                document.getElementById('txt-hud-sex').style.color = "#fff";
+            }
             
+            document.getElementById('txt-hud-terpenes').innerText = p.terpeneMultiplier.toFixed(1) + "x";
             document.getElementById('lbl-specimen-id-tag').innerText = p.active ? `ID: #AX-${p.id}` : "ID: STANDBY";
 
-            // Sincronizar contadores de insignias en HUD
-            let count = 0;
-            player.unlockedBadges.forEach(b => { if(b) count++; });
-            document.getElementById('lbl-badge-count-ratio').innerText = `${count}/4 UNLOCKED`;
+            let badgesCount = 0;
+            player.unlockedBadges.forEach(b => { if(b) badgesCount++; });
+            document.getElementById('lbl-badge-count-ratio').innerText = `${badgesCount}/4 UNLOCKED`;
             
-            // Sincronizar etiquetas de telemetría de sliders
             document.getElementById('lbl-speed-val').innerText = document.getElementById('sim-speed').value + " km/h";
             document.getElementById('lbl-pests-val').innerText = document.getElementById('sim-pests').value + "%";
+            document.getElementById('lbl-gps-node').innerText = `CELL: ${getSpatialHash(sim.muleSpeed, sim.regionalPests)}`;
         }
 
-        // Registro del bucle de simulación botánica pasiva
-        setInterval(evaluateBiologicalLazyPipeline, GrowthIntervalSecs * 1000);
-    </script>
-    <script>
-        // --- 1. ACCESO REAL A HARDWARE DE CÁMARA (NATIVE WEB AR EMULATION) ---
         async function initiateHardwareARCamera() {
             const video = document.getElementById('ar-video-feed');
             const btn = document.getElementById('btn-request-ar-camera');
             
             try {
-                // Solicitar flujos multimedia del dispositivo en tiempo real
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" }, // Cámara trasera si es móvil
+                    video: { facingMode: "environment" },
                     audio: false
                 });
                 video.srcObject = stream;
-                video.style.opacity = "0.75"; // Elevar opacidad para integrar el fondo real
+                video.style.opacity = "0.75";
                 btn.innerText = "AR CAMERA: ACTIVE";
                 btn.style.borderColor = "var(--hud-border-green)";
-                logToRustNetwork("HARDWARE_AR", "Capa ARCore/ARKit emulada: Permisos de cámara concedidos. SH Coeffs estables.", "good");
+                logToRustNetwork("HARDWARE_AR", "Capa ARCore/ARKit activa: Feed de hardware enlazado de forma síncrona.", "good");
                 initWebAudioContextDriver();
             } catch (err) {
-                console.warn("Acceso a la cámara denegado o no disponible. Activando feed sintético.");
-                video.style.background = "#050e0a";
+                video.style.background = "#040906";
                 btn.innerText = "AR FEED: SIMULATED";
-                logToRustNetwork("HARDWARE_AR", "Cámara no detectada. Activando matriz de simulación cromática persistente.", "info");
+                logToRustNetwork("HARDWARE_AR", "Cámara de hardware no detectada. Inicializando matriz de simulación cromática.", "info");
                 initWebAudioContextDriver();
             }
         }
 
-        // --- 2. DRIVER DE AUDIO NATIVO (SÍNTESIS DE PITIDOS DE INTERFAZ Y DRONES) ---
         let webAudioCtx = null;
-
         function initWebAudioContextDriver() {
             if (webAudioCtx) return;
             webAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            logToRustNetwork("METASOUNDS", "Sintetizador procedimental enlazado a variables biológicas.", "info");
+            logToRustNetwork("METASOUNDS", "Motor de audio procedimental Unreal MetaSounds listo.", "info");
         }
 
         function triggerAudioTone() {
             if (!webAudioCtx) return;
-            // Pitido síncrono de confirmación de transacción estilo ciberpunk
             const osc = webAudioCtx.createOscillator();
             const gain = webAudioCtx.createGain();
             osc.type = "sine";
-            osc.frequency.setValueAtTime(880, webAudioCtx.currentTime); // Tono agudo limpio
-            gain.gain.setValueAtTime(0.04, webAudioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.00001, webAudioCtx.currentTime + 0.15);
+            osc.frequency.setValueAtTime(840, webAudioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, webAudioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, webAudioCtx.currentTime + 0.12);
             osc.connect(gain);
             gain.connect(webAudioCtx.destination);
             osc.start();
-            osc.stop(webAudioCtx.currentTime + 0.15);
+            osc.stop(webAudioCtx.currentTime + 0.12);
         }
 
-        // --- 3. MOTOR GRÁFICO CENTRAL (CANVAS RENDER BUCLE EN TIEMPO REAL) ---
         const arCanvas = document.getElementById('ar-canvas-layer');
         const arCtx = arCanvas.getContext('2d');
         const mapCanvas = document.getElementById('mini-map-canvas');
@@ -1117,127 +879,111 @@
         window.addEventListener('resize', resizeGraphicViewports);
         resizeGraphicViewports();
 
-        // Estructura de coordenadas para nodos de vecinos del Spatial Hash Map
         const mockNeighbourNodes = [
-            { x: 40, y: 30, color: "var(--hud-border-green)", icon: "🌿" },
-            { x: 180, y: 85, color: "var(--hud-border-cyan)", icon: "🧪" },
-            { x: 260, y: 40, color: "var(--hud-border-green)", icon: "🌵" },
-            { x: 110, y: 110, color: "var(--hud-border-amber)", icon: "⚠️" }
+            { x: 35, y: 40, color: "var(--hud-border-green)", icon: "🌿" },
+            { x: 190, y: 90, color: "var(--hud-border-cyan)", icon: "🧪" },
+            { x: 280, y: 30, color: "var(--hud-border-green)", icon: "🌵" }
         ];
 
         function gameGraphicsRenderLoop(timestamp) {
-            // --- A. RENDERIZADO DEL CANVAS CENTRAL (PLANTA EN AR) ---
             arCtx.clearRect(0, 0, arCanvas.width, arCanvas.height);
-            
-            const midX = arCanvas.width / 2;
-            const midY = arCanvas.height / 2;
+            const mX = arCanvas.width / 2;
+            const mY = arCanvas.height / 2;
             const p = ENGINE_STATE.plant;
 
-            // Cuadrícula holográfica de fijación en el suelo (Surface Meshing)
             arCtx.strokeStyle = "rgba(57, 229, 138, 0.08)";
             arCtx.lineWidth = 1;
-            const size = 35;
-            for (let x = 0; x < arCanvas.width; x += size) {
+            const step = 30;
+            for (let x = 0; x < arCanvas.width; x += step) {
                 arCtx.beginPath(); arCtx.moveTo(x, 0); arCtx.lineTo(x, arCanvas.height); arCtx.stroke();
             }
-            for (let y = 0; y < arCanvas.height; y += size) {
+            for (let y = 0; y < arCanvas.height; y += step) {
                 arCtx.beginPath(); arCtx.moveTo(0, y); arCtx.lineTo(arCanvas.width, y); arCtx.stroke();
             }
 
             if (p.active && p.healthLevel > 0) {
-                // Deformación física u oscilación de hojas simulada por una onda sinusoidal basculante
-                const sway = Math.sin(timestamp * 0.003) * 8;
+                const wave = Math.sin(timestamp * 0.003) * 6;
+                arCtx.shadowBlur = 25;
                 
-                arCtx.shadowBlur = 20;
-                // Sincronizar color neón: Si es la Axiom Aeterna brilla en azul ciber-cuántico, si no, verde o ámbar
                 if (p.isAeterna) {
                     arCtx.shadowColor = "var(--hud-border-cyan)";
-                    arCtx.fillStyle = "rgba(0, 225, 255, 0.8)";
+                    arCtx.fillStyle = "rgba(0, 225, 255, 0.85)";
                 } else {
                     arCtx.shadowColor = p.geneticSex === "Female" ? "var(--hud-border-green)" : "var(--hud-border-amber)";
                     arCtx.fillStyle = p.geneticSex === "Female" ? "rgba(57, 229, 138, 0.8)" : "rgba(255, 170, 0, 0.8)";
                 }
 
-                // Dibujar modelado geométrico incremental según la salud y el tipo
-                const radius = 15 + (p.healthLevel * 18);
+                const radius = Math.min(45, 12 + (p.growthDays * 2.5) * p.healthLevel);
                 arCtx.beginPath();
-                arCtx.arc(midX + sway, midY + 40, radius, 0, Math.PI * 2);
+                arCtx.arc(mX + wave, mY + 20, radius, 0, Math.PI * 2);
                 arCtx.fill();
                 
-                // Dibujar filamentos ciber-orgánicos adicionales (Tallos y Hojas AR)
                 arCtx.strokeStyle = arCtx.shadowColor;
                 arCtx.lineWidth = 3;
                 arCtx.beginPath();
-                arCtx.moveTo(midX, midY + 120);
-                arCtx.quadraticCurveTo(midX + sway * 1.5, midY + 70, midX + sway, midY + 40);
+                arCtx.moveTo(mX, mY + 120);
+                arCtx.quadraticCurveTo(mX + wave * 1.4, mY + 65, mX + wave, mY + 20);
                 arCtx.stroke();
                 arCtx.shadowBlur = 0;
 
-                // Si está en fase de curado hermético, dibujar contorno de frasco digital
                 if (p.moistureContent > 0) {
                     arCtx.strokeStyle = "var(--hud-border-red)";
                     arCtx.lineWidth = 1;
-                    arCtx.setLineDash([4, 4]);
-                    arCtx.strokeRect(midX - 50 + sway, midY - 10, 100, 140);
+                    arCtx.setLineDash([5, 5]);
+                    arCtx.strokeRect(mX - 60 + wave, mY - 30, 120, 160);
                     arCtx.setLineDash([]);
                 }
-
             } else if (p.active && p.healthLevel === 0) {
-                // Renderización de partículas destructivas Niagara si entra en Permadeath
                 arCtx.fillStyle = "var(--hud-border-red)";
-                for (let i = 0; i < 20; i++) {
-                    const particleX = midX + Math.sin(timestamp * 0.01 + i) * (i * 2);
-                    const particleY = (midY + 60) - (i * 5) + (Math.sin(timestamp * 0.005) * 10);
-                    arCtx.fillRect(particleX, particleY, 3, 3);
+                for (let i = 0; i < 25; i++) {
+                    const partX = mX + Math.sin(timestamp * 0.012 + i) * (i * 2.5);
+                    const partY = (mY + 40) - (i * 6) + (Math.sin(timestamp * 0.006) * 12);
+                    arCtx.fillRect(partX, partY, 2.5, 2.5);
                 }
             }
 
-            // --- B. RENDERIZADO DEL MINI-MAPA DE CONTROL (AXIOM PLANT MAPS) ---
             mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+            const mapCenterX = mapCanvas.width / 2;
+            const mapCenterY = mapCanvas.height / 2;
+            const waveRadius = (timestamp * 0.03) % (mapCanvas.width / 2);
             
-            // Dibujar círculos concéntricos de escaneo de proximidad Bluetooth (BLE)
-            const mapX = mapCanvas.width / 2;
-            const mapY = mapCanvas.height / 2;
-            const pulseRadius = (timestamp * 0.04) % (mapCanvas.width / 2);
-            
-            mapCtx.strokeStyle = "rgba(0, 225, 255, 0.15)";
-            mapCtx.lineWidth = 1;
-            mapCtx.beginPath();
-            mapCtx.arc(mapX, mapY, pulseRadius, 0, Math.PI * 2);
-            mapCtx.stroke();
+            mapCtx.strokeStyle = "rgba(0, 225, 255, 0.12)";
+            mapCtx.beginPath(); mapCtx.arc(mapCenterX, mapCenterY, waveRadius, 0, Math.PI * 2); mapCtx.stroke();
 
-            // Dibujar las líneas de interconexión de distritos para Spatial Hashing WGS84
-            mapCtx.strokeStyle = "rgba(27, 53, 39, 0.4)";
-            for (let i = 0; i < mapCanvas.width; i += 25) {
+            mapCtx.strokeStyle = "rgba(27, 53, 39, 0.3)";
+            for (let i = 0; i < mapCanvas.width; i += 20) {
                 mapCtx.beginPath(); mapCtx.moveTo(i, 0); mapCtx.lineTo(i, mapCanvas.height); mapCtx.stroke();
                 mapCtx.beginPath(); mapCtx.moveTo(0, i); mapCtx.lineTo(mapCanvas.width, i); mapCtx.stroke();
             }
 
-            // Dibujar los actores del mapa precargados mediante Object Pooling simulado
             mockNeighbourNodes.forEach(node => {
                 mapCtx.fillStyle = node.color;
-                mapCtx.beginPath();
-                mapCtx.arc(node.x, node.y, 4, 0, Math.PI * 2);
-                mapCtx.fill();
-                mapCtx.font = "10px Arial";
-                mapCtx.fillText(node.icon, node.x - 5, node.y - 6);
+                mapCtx.beginPath(); mapCtx.arc(node.x, node.y, 3.5, 0, Math.PI * 2); mapCtx.fill();
+                mapCtx.font = "9px Arial";
+                mapCtx.fillText(node.icon, node.x - 4, node.y - 5);
             });
 
-            // Nodo de tu posición GPS central parpadeante
-            if (Math.floor(timestamp / 400) % 2 === 0) {
+            if (Math.floor(timestamp / 350) % 2 === 0) {
                 mapCtx.fillStyle = "var(--hud-border-cyan)";
-                mapCtx.beginPath();
-                mapCtx.arc(mapX, mapY, 5, 0, Math.PI * 2);
-                mapCtx.fill();
+                mapCtx.beginPath(); mapCtx.arc(mapCenterX, mapCenterY, 4.5, 0, Math.PI * 2); mapCtx.fill();
             }
 
             requestAnimationFrame(gameGraphicsRenderLoop);
         }
 
-        // --- 4. INICIALIZACIÓN COMPILADA DEL ENTORNO ---
+        document.getElementById('sim-speed').addEventListener('input', (e) => {
+            ENGINE_STATE.simulation.muleSpeed = parseInt(e.target.value);
+            syncVisualDOM();
+        });
+        document.getElementById('sim-pests').addEventListener('input', (e) => {
+            ENGINE_STATE.simulation.regionalPests = parseInt(e.target.value);
+            syncVisualDOM();
+        });
+
+        setInterval(evaluateBiologicalLazyPipeline, GrowthIntervalSecs * 1000);
         requestAnimationFrame(gameGraphicsRenderLoop);
-        // Lanzar dimensiones iniciales corregidas
-        setTimeout(resizeGraphicViewports, 100);
+        setTimeout(resizeGraphicViewports, 150);
+        syncVisualDOM();
     </script>
 </body>
 </html>
