@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AXIOM FLORA // The Botanical Game</title>
+    <title>AXIOM FLORA // Core Gameplay Interface</title>
     <style>
-        /* PALETA DE COLOR CIBER-INDUSTRIAL Y ESTILOS JUEGO DE ESTRATEGIA */
+        /* =========================================================================
+           [BLOQUE 1 - ESTILOS BASE Y VARIABLES HOLOGRÁFICAS UNREAL ENGINE MATRIX]
+           ========================================================================= */
         :root {
-            --bg-game: #080d0b;
-            --hud-bg: #101815;
-            --hud-border: #1b3527;
-            --neon-green: #39e58a;
-            --neon-red: #ff4a4a;
-            --neon-amber: #ffaa00;
-            --neon-cyan: #00e1ff;
-            --text-light: #e6f7f0;
-            --text-dark: #4a6355;
-            --font-game: 'Courier New', Courier, monospace;
+            --bg-dark: #060908;
+            --hud-bg-opaque: rgba(10, 18, 14, 0.85);
+            --hud-bg-solid: #0d1612;
+            --hud-border-cyan: #00e1ff;
+            --hud-border-green: #39e58a;
+            --hud-border-amber: #ffaa00;
+            --hud-border-red: #ff4a4a;
+            --text-glow-green: rgba(57, 229, 138, 0.4);
+            --text-glow-cyan: rgba(0, 225, 255, 0.4);
+            --font-mono: 'Courier New', Courier, monospace;
         }
 
         * {
@@ -24,876 +26,1218 @@
             margin: 0;
             padding: 0;
             user-select: none;
-            font-family: var(--font-game);
+            font-family: var(--font-mono);
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-game);
-            color: var(--text-light);
-            font-size: 13px;
+            background-color: var(--bg-dark);
+            color: #e6f7f0;
+            font-size: 12px;
             height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 3px solid var(--hud-border);
         }
 
-        /* HEADER DEL JUEGO: REPUTACIÓN Y BALANCES */
-        .game-header {
-            background: linear-gradient(180deg, #13221b 0%, var(--hud-bg) 100%);
-            border-bottom: 2px solid var(--hud-border);
-            padding: 12px 20px;
+        /* BANNER DE INGENIERÍA PRINCIPAL */
+        .axiom-header {
+            background: linear-gradient(180deg, #111f19 0%, #070d0a 100%);
+            border-bottom: 2px solid #1b3527;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 100;
         }
 
-        .game-logo {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--neon-green);
-            text-shadow: 0 0 10px rgba(57,229,138,0.4);
+        .title-container h1 {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #ffffff;
+        }
+        .title-container span {
+            color: var(--hud-border-green);
+            font-size: 11px;
             letter-spacing: 1px;
         }
 
-        .wallet-zone {
+        .global-telemetry-bar {
             display: flex;
-            gap: 25px;
-            align-items: center;
+            gap: 15px;
         }
 
-        .crypto-badge {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--hud-border);
-            padding: 6px 14px;
+        .telemetry-node {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #1b3527;
+            padding: 5px 12px;
             border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .crypto-badge span {
-            color: var(--neon-green);
-            text-shadow: 0 0 5px rgba(57,229,138,0.3);
+        .telemetry-node strong {
+            color: var(--hud-border-cyan);
         }
 
-        /* DISEÑO DE LA PANTALLA PRINCIPAL DEL JUEGO */
-        .game-viewport {
+        /* VIEWPORT DE VIDEOJUEGO DE TRES COLUMNAS */
+        .game-canvas-master {
             flex: 1;
             display: grid;
-            grid-template-columns: 350px 1fr 380px;
-            grid-template-rows: 1fr 190px;
-            gap: 12px;
-            padding: 12px;
+            grid-template-columns: 360px 1fr 380px;
+            padding: 15px;
+            gap: 15px;
+            position: relative;
+            height: calc(100vh - 55px);
         }
 
-        /* CONTENEDORES MODULARES DEL HUD */
-        .hud-card {
-            background: var(--hud-bg);
-            border: 1px solid var(--hud-border);
-            border-radius: 6px;
+        /* CONTENEDOR MODULAR HOLOGRÁFICO (HUD SLOTS) */
+        .hud-panel {
+            background: var(--hud-bg-opaque);
+            border: 1px solid rgba(57, 229, 138, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+            transition: border-color 0.3s ease;
         }
 
-        .hud-card-header {
-            background: rgba(27, 53, 39, 0.3);
-            padding: 8px 12px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--hud-border);
-            color: var(--neon-green);
+        .hud-panel.panel-cyan { border-color: rgba(0, 225, 255, 0.2); }
+        .hud-panel.panel-amber { border-color: rgba(255, 170, 0, 0.2); }
+
+        .panel-header-anchor {
+            padding: 10px 14px;
+            background: rgba(16, 28, 22, 0.4);
+            border-bottom: 1px solid rgba(57, 229, 138, 0.15);
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
+        .panel-header-anchor.cyan-text { color: var(--hud-border-cyan); border-bottom-color: rgba(0, 225, 255, 0.15); }
+        .panel-header-anchor.amber-text { color: var(--hud-border-amber); border-bottom-color: rgba(255, 170, 0, 0.15); }
 
-        .hud-card-body {
+        .panel-body-scroll {
             flex: 1;
             padding: 14px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
-        /* ELEMENTOS DINÁMICOS DE JUEGO */
-        .stat-bar-container {
-            margin-bottom: 4px;
-        }
-        .stat-bar-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 3px;
-            color: var(--text-light);
-        }
-        .stat-bar-wraper {
-            background: #090e0c;
-            border: 1px solid var(--hud-border);
-            height: 14px;
-            border-radius: 2px;
-            overflow: hidden;
+        /* CAPA CENTRAL RECTILÍNEA DE CONTROL CAM / AR */
+        .ar-viewframe-center {
             position: relative;
-        }
-        .stat-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: var(--neon-green);
-            transition: width 0.3s ease;
-        }
-        .stat-bar-fill.alert { background: var(--neon-red); }
-        .stat-bar-fill.warning { background: var(--neon-amber); }
-        .stat-bar-fill.cyan { background: var(--neon-cyan); }
-
-        /* LISTADOS INTERACTIVOS (CATÁLOGO / LOGROS) */
-        .game-list-item {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--hud-border);
-            padding: 8px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-        }
-        .game-list-item:hover {
-            border-color: var(--neon-green);
-        }
-
-        /* RADAR GAME VIEWPORT */
-        .radar-view {
-            position: relative;
-            background: #050907;
-            border: 1px solid var(--hud-border);
-            border-radius: 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(57, 229, 138, 0.1);
             overflow: hidden;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* SECCIÓN DE BOTONES DE ACCIÓN DE JUEGO */
-        .btn-game {
-            background: #15271d;
-            border: 1px solid var(--hud-border);
-            color: var(--text-light);
-            padding: 10px 14px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-        .btn-game:hover:not(:disabled) {
-            background: var(--neon-green);
-            color: var(--bg-game);
-            box-shadow: 0 0 12px rgba(57,229,138,0.5);
-            border-color: var(--neon-green);
-        }
-        .btn-game:disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-        }
-        .btn-game-alert {
-            background: #381515;
-            border-color: #5c2020;
-        }
-        .btn-game-alert:hover:not(:disabled) {
-            background: var(--neon-red);
-            color: white;
-            box-shadow: 0 0 12px rgba(255,74,74,0.5);
-            border-color: var(--neon-red);
-        }
-
-        /* PANEL INFERIOR: LOGS DE EVENTOS Y AI MENTOR */
-        .bottom-log-panel {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 12px;
-        }
-
-        .terminal-box {
-            background: #040706;
-            border: 1px solid var(--hud-border);
-            padding: 10px;
-            border-radius: 4px;
-            overflow-y: auto;
-            list-style: none;
-            font-size: 11px;
-        }
-        .terminal-box li {
-            margin-bottom: 5px;
-            line-height: 14px;
-        }
-        .t-time { color: var(--text-dark); margin-right: 8px; }
-        .t-tag { margin-right: 8px; font-weight: bold; }
-        .t-tag.good { color: var(--neon-green); }
-        .t-tag.bad { color: var(--neon-red); }
-        .t-tag.info { color: var(--neon-cyan); }
-
-        .ai-mentor-box {
-            background: rgba(16, 24, 21, 0.8);
-            border: 1px solid var(--hud-border);
-            border-radius: 4px;
-            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-        }
-        .ai-mentor-bubble {
-            background: #090f0c;
-            border: 1px dashed var(--hud-border);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            line-height: 15px;
-            color: #a3ffd0;
-            flex: 1;
-            overflow-y: auto;
+            background: #020403;
         }
 
-        /* GRID PARA SELECCIONAR LOGROS QUE SE INTEGRAN EN TU PERFIL */
-        .achievements-grid {
+        /* CÁMARA DE REALIDAD AUMENTADA DE FONDO FALSO/REAL */
+        #ar-video-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transform: scaleX(-1); /* Efecto espejo natural */
+            opacity: 0.4; /* Permitir ver la cuadrícula holográfica */
+        }
+
+        /* CANVAS DE RENDERIZADO GRÁFICO DE PLANTAS DE ALTA FIDELIDAD */
+        #ar-canvas-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .ar-hud-overlay {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            z-index: 3;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+            grid-template-columns: 1fr 150px;
+            gap: 10px;
+            pointer-events: auto;
         }
-        .badge-slot {
-            background: #0a110e;
-            border: 1px solid var(--hud-border);
-            padding: 6px;
-            font-size: 10px;
+
+        /* POPUPS REACCIONALES DE LOGROS MALOS (PUBLIC ROASTING) */
+        .roast-popup-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .roast-modal {
+            background: #160b0b;
+            border: 2px solid var(--hud-border-red);
+            box-shadow: 0 0 30px rgba(255, 74, 74, 0.4);
+            width: 420px;
+            border-radius: 8px;
+            padding: 20px;
             text-align: center;
-            border-radius: 3px;
-            color: var(--text-dark);
-        }
-        .badge-slot.unlocked {
-            color: var(--text-light);
-            border-color: var(--neon-amber);
-            background: rgba(255, 170, 0, 0.05);
+            position: relative;
         }
     </style>
 </head>
 <body>
 
-    <header class="game-header">
-        <div class="game-logo">🌿 AXIOM FLORA // Virtual Farm</div>
-        <div class="wallet-zone">
-            <div class="crypto-badge">REP CALLEJERA: <span id="lbl-rep">1.00</span></div>
-            <div class="crypto-badge">BALANCE: <span id="lbl-coins">1000.00 AC</span></div>
+    <!-- CABECERA OPERACIONAL DEL JUEGO -->
+    <header class="axiom-header">
+        <div class="title-container">
+            <h1>AXIOM FLORA</h1>
+            <span>EL IMPERIO VERDE INDEPENDIENTE // STREET BOTANY</span>
+        </div>
+        <div class="global-telemetry-bar">
+            <div class="telemetry-node">P2P SYNC: <strong id="net-sync-latency">1.5ms FLAT</strong></div>
+            <div class="telemetry-node">SECURITY LAYER: <span style="color:var(--hud-border-green);" id="sec-status">ACTIVE</span></div>
+            <div class="telemetry-node" style="border-color: var(--hud-border-green);">CORE COMPILER: <span style="color:var(--hud-border-green);">COMPILER GREEN</span></div>
         </div>
     </header>
 
-    <main class="game-viewport">
+    <!-- ÁREA GLOBAL DE COMBATE Y SIMULACIÓN GENÉTICA -->
+    <main class="game-canvas-master">
         
-        <section class="hud-card">
-            <div class="hud-card-header"><span>🗂️ CATÁLOGO DE INVERSIÓN Y CLONES</span></div>
-            <div class="hud-card-body">
-                <div class="range-box" style="display:flex; flex-direction:column; gap:6px;">
-                    <button class="btn-game" id="btn-buy-seed" style="width:100%;">COMPRAR SEMILLA DIGITAL (10 AC)</button>
-                    <button class="btn-game btn-game-alert" id="btn-buy-premium" style="width:100%;">COMPRAR PAQUETE INDOOR (9.99 AC)</button>
-                </div>
-                
-                <div style="border-top: 1px solid var(--hud-border); padding-top: 10px;">
-                    <div style="font-size:11px; color:var(--neon-green); margin-bottom:6px; font-weight:bold;">🧬 MATRIZ DE REPLICACIÓN (CLONES)</div>
-                    <div class="game-list-item">
-                        <div>
-                            <div id="lbl-clones-title">Planta Madre: Ninguna</div>
-                            <small class="text-dark" id="lbl-clones-count" style="color:var(--text-dark);">Esquejes disponibles: 0</small>
-                        </div>
-                        <button class="btn-game" id="btn-cut-clone" style="padding:4px 8px; font-size:10px;" disabled>CORTAR</button>
-                    </div>
-                </div>
+        <!-- SECCIÓN DE CONTENIDO RESERVADA PARA LOS SIGUIENTES BLOQUES: -->
+        <!-- PANEL IZQUIERDO: UNCENSORED MARKET (Se inyectará en Bloque 2) -->
+        <div id="anchor-left-panel" style="display: contents;"></div>
 
-                <div style="border-top: 1px solid var(--hud-border); padding-top: 10px; margin-top: auto;">
-                    <div style="font-size:11px; color:var(--neon-cyan); margin-bottom:6px; font-weight:bold;">📈 VIRTUAL BROKER (TRAPICHEO P2P)</div>
-                    <div class="game-list-item" style="margin-bottom:6px;">
-                        <span>Precio de Mercado Actual:</span>
-                        <span id="lbl-market-price" style="color:var(--neon-green); font-weight:bold;">100 AC / Lote</span>
-                    </div>
-                    <button class="btn-game" id="btn-sell-crop" style="width:100%; border-color:var(--neon-cyan);" disabled>VENDER COSECHA EN EL DISTRITO</button>
-                </div>
-            </div>
+        <!-- PANEL CENTRAL: ACTIVE GENETIC SIMULATION CON VÍDEO FEED Y CANVAS AR -->
+        <section class="ar-viewframe-center" id="center-zone-parent">
+            <!-- Hardware Video Feed Integrado para AR Nativa -->
+            <video id="ar-video-feed" autoplay playsinline muted></video>
+            
+            <!-- Lienzo de renderizado para mallas y partículas cuánticas de la planta -->
+            <canvas id="ar-canvas-layer"></canvas>
+
+            <!-- Controladores flotantes inmediatos en el área de simulación -->
+            <div class="ar-hud-overlay" id="anchor-center-hud"></div>
         </section>
 
-        <section class="hud-card">
-            <div class="hud-card-header">
-                <span>🗺️ AXIOM PLANT MAPS & SPATIAL HASHING</span>
-                <span id="lbl-gps-node" style="color:var(--neon-cyan);">CELL: H_0_0</span>
-            </div>
-            <div class="radar-view" id="radar-wrapper" style="flex:1;">
-                <canvas id="gameCanvas"></canvas>
-            </div>
-            <div style="padding:10px; background:rgba(0,0,0,0.3); border-top:1px solid var(--hud-border); display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div style="display:flex; flex-direction:column; gap:4px;">
-                    <label style="font-size:10px; color:var(--text-dark);">VELOCIDAD MULA (MENSAGERO): <span id="lbl-speed-val" style="color:var(--neon-amber);">0 km/h</span></label>
-                    <input type="range" id="sim-speed" min="0" max="50" value="0" style="accent-color:var(--neon-amber); width:100%;">
-                </div>
-                <div style="display:flex; flex-direction:column; gap:4px;">
-                    <label style="font-size:10px; color:var(--text-dark);">CLIMA LOCAL (REGIONAL PESTS): <span id="lbl-pests-val" style="color:var(--neon-red);">5%</span></label>
-                    <input type="range" id="sim-pests" min="0" max="100" value="5" style="accent-color:var(--neon-red); width:100%;">
-                </div>
-            </div>
-        </section>
-
-        <section class="hud-card">
-            <div class="hud-card-header"><span>🌱 CULTIVO VIRTUAL // INSTANCIA ACTIVA</span></div>
-            <div class="hud-card-body">
-                
-                <div class="stat-bar-container">
-                    <div class="stat-bar-label"><span>SALUD BIOLÓGICA:</span><span id="txt-health">0%</span></div>
-                    <div class="stat-bar-wraper"><div class="stat-bar-fill alert" id="bar-health" style="width:0%;"></div></div>
-                </div>
-                <div class="stat-bar-container">
-                    <div class="stat-bar-label"><span>HIDRATACIÓN:</span><span id="txt-hydrate">0%</span></div>
-                    <div class="stat-bar-wraper"><div class="stat-bar-fill" id="bar-hydrate" style="width:0%;"></div></div>
-                </div>
-                <div class="stat-bar-container">
-                    <div class="stat-bar-label"><span>ESTRÉS POR FOTOPERIODO:</span><span id="txt-stress">0%</span></div>
-                    <div class="stat-bar-wraper"><div class="stat-bar-fill warning" id="bar-stress" style="width:0%;"></div></div>
-                </div>
-                <div class="stat-bar-container">
-                    <div class="stat-bar-label"><span>CURADO EN BOTES (HUMEDAD):</span><span id="txt-cure">0%</span></div>
-                    <div class="stat-bar-wraper"><div class="stat-bar-fill cyan" id="bar-cure" style="width:0%;"></div></div>
-                </div>
-
-                <div class="game-list-item" style="padding:4px 8px; font-size:11px;">
-                    <span style="color:var(--text-dark);">SEXO GENÉTICO:</span>
-                    <span id="txt-sex" style="font-weight:bold;">NINGUNO</span>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px;">
-                    <button class="btn-game" id="btn-water" disabled>REGAR PLANTA</button>
-                    <button class="btn-game" id="btn-air-jar" disabled>AIREAR BOTE</button>
-                </div>
-
-                <div style="border-top: 1px solid var(--hud-border); padding-top: 8px; margin-top: auto;">
-                    <div style="font-size:11px; color:var(--neon-amber); margin-bottom:6px; font-weight:bold;">🏆 PERFIL JUGADOR (LOGROS CLAVE)</div>
-                    <div class="achievements-grid">
-                        <div class="badge-slot" id="badge-0">¿REY DEL MOHO?</div>
-                        <div class="badge-slot" id="badge-1">GERANIUM KILLER</div>
-                        <div class="badge-slot" id="badge-2">BOTÁNICO EXPERTO</div>
-                        <div class="badge-slot" id="badge-3">MAESTRO CLONADOR</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="bottom-log-panel">
-            <ul class="terminal-box" id="game-terminal">
-                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[SYSTEM]</span> Bienvenido a Axiom Flora. Compra una semilla para fundar tu imperio verde en el barrio.</li>
-            </ul>
-
-            <div class="ai-mentor-box">
-                <div style="font-size:10px; font-weight:bold; color:var(--neon-green);">🤖 AI MENTOR // BOTANICAL KNOWLEDGE</div>
-                <div class="ai-mentor-bubble" id="ai-speech">
-                    "Oye jefe, la calle está tranquila pero tus bolsillos vacíos. Píllate una semilla digital en el menú de la izquierda y reza para que te salga hembra, porque si te sale un macho te va a llenar el vecindario de polen y te vas a comer los mocos."
-                </div>
-            </div>
-        </section>
+        <!-- PANEL DERECHO: CONTEXTO BIOLÓGICO, CONTROLES PRO Y LOGROS (Se inyectará en Bloque 3) -->
+        <div id="anchor-right-panel" style="display: contents;"></div>
 
     </main>
+
+    <!-- MODAL DE ROASTEO PÚBLICO (ALERTA DE LOGROS MALOS) -->
+    <div class="roast-popup-overlay" id="public-roast-popup">
+        <div class="roast-modal">
+            <div style="font-size: 40px; color: var(--hud-border-red); margin-bottom: 10px;">⚠️</div>
+            <h2 style="color: #fff; font-size: 16px; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">PUBLIC ROASTING TRIGGERED!</h2>
+            <p id="roast-popup-message" style="color: #ffb3b3; font-size: 13px; margin-bottom: 20px; font-weight: bold; line-height: 16px;">"GRANDMOTHER'S DISGRACE"</p>
+            <button class="btn-action-spec" id="btn-close-roast" style="background:#401515; border:1px solid var(--hud-border-red); color:#fff; padding:8px 25px; cursor:pointer; font-weight:bold; text-transform:uppercase; font-size:11px; border-radius:4px;">OK</button>
+        </div>
+    </div>
+    <!-- =========================================================================
+       [BLOQUE 2 - PANEL IZQUIERDO: UNCENSORED MARKET & AXIOM PLANT MAPS]
+       ========================================================================= -->
+    <style>
+        /* ESTILOS ESPECÍFICOS PARA EL MENÚ DEL MERCADO P2P Y DE CULTIVO */
+        .market-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .plant-catalog-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(57, 229, 138, 0.15);
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .plant-catalog-card:hover {
+            border-color: var(--hud-border-green);
+            background: rgba(57, 229, 138, 0.03);
+            box-shadow: 0 0 10px rgba(57, 229, 138, 0.1);
+        }
+        .plant-catalog-card.selected {
+            border-color: var(--hud-border-cyan);
+            background: rgba(0, 225, 255, 0.05);
+            box-shadow: 0 0 12px rgba(0, 225, 255, 0.2);
+        }
+
+        .card-image-emulation {
+            width: 100%;
+            height: 75px;
+            background: #090e0c;
+            border: 1px solid rgba(57, 229, 138, 0.1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Rejillas y tramas tecnológicas dentro de los cuadros de imagen */
+        .card-image-emulation::before {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            background: linear-gradient(rgba(57,229,138,0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(57,229,138,0.05) 1px, transparent 1px);
+            background-size: 8px 8px;
+        }
+
+        .card-image-emulation span {
+            font-size: 26px;
+            z-index: 2;
+            filter: drop-shadow(0 0 5px rgba(57,229,138,0.5));
+        }
+
+        .card-meta-title {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-price-tag {
+            font-size: 11px;
+            color: var(--hud-border-green);
+            font-weight: bold;
+        }
+
+        /* DISEÑO COMPACTO PARA EL INTEGRADO DEL MAPA DE CONTROL */
+        .map-interactive-module {
+            background: #040806;
+            border: 1px solid rgba(0, 225, 255, 0.15);
+            border-radius: 6px;
+            height: 125px;
+            position: relative;
+            overflow: hidden;
+        }
+        #mini-map-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .map-floating-tags {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(0,0,0,0.75);
+            border: 1px solid var(--hud-border-cyan);
+            padding: 3px 6px;
+            font-size: 9px;
+            border-radius: 3px;
+            pointer-events: none;
+            color: var(--hud-border-cyan);
+        }
+
+        /* BOTONES INTERACTIVOS DE ALTA PRECISIÓN */
+        .btn-action-spec {
+            background: #112218;
+            border: 1px solid var(--hud-border-green);
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .btn-action-spec:hover:not(:disabled) {
+            background: var(--hud-border-green);
+            color: var(--bg-dark);
+            box-shadow: 0 0 12px var(--text-glow-green);
+        }
+        .btn-action-spec:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: #1b3527;
+            background: transparent;
+        }
+    </style>
+
     <script>
-        // --- 1. CORE DATA STRUCTURE: ESTADO DE JUEGO CENTRALIZADO ($O(1)$ MEMORY ACCESS) ---
-        const GAME_STATE = {
+        // INYECTAR LA ESTRUCTURA DEL PANEL IZQUIERDO DIRECTAMENTE EN SU ANCLAJE
+        document.getElementById('anchor-left-panel').outerHTML = `
+        <section class="hud-panel">
+            <div class="panel-header-anchor">
+                <span>🛒 UNCENSORED MARKET (100% FREE)</span>
+                <span style="color:var(--text-dark);">CATALOG_V21</span>
+            </div>
+            <div class="panel-body-scroll">
+                
+                <!-- MENÚ DE SELECCIÓN DE BOTÁNICA INTERACTIVA -->
+                <div style="font-size:10px; color:var(--text-dark); font-weight:bold; letter-spacing:0.5px;">SELECT BOTANICAL SPECIMEN:</div>
+                
+                <div class="market-grid-container" id="market-catalog-dom-injection">
+                    <!-- Tarjeta 1: Medical Cannabis -->
+                    <div class="plant-catalog-card selected" onclick="selectCatalogItem('cannabis', 10, this)">
+                        <div class="card-image-emulation"><span>🌿</span></div>
+                        <div class="card-meta-title">MEDICAL CANNABIS</div>
+                        <div class="card-price-tag">10.00 AC</div>
+                    </div>
+                    <!-- Tarjeta 2: Exotic Plants -->
+                    <div class="plant-catalog-card" onclick="selectCatalogItem('amazonian', 25, this)">
+                        <div class="card-image-emulation"><span>🌵</span></div>
+                        <div class="card-meta-title">AMAZONIAN EXOTIC</div>
+                        <div class="card-price-tag">25.00 AC</div>
+                    </div>
+                    <!-- Tarjeta 3: Shamanic Botany -->
+                    <div class="plant-catalog-card" onclick="selectCatalogItem('shamanic', 50, this)">
+                        <div class="card-image-emulation"><span>🍄</span></div>
+                        <div class="card-meta-title">SHAMANIC BOTANY</div>
+                        <div class="card-price-tag">50.00 AC</div>
+                    </div>
+                    <!-- Tarjeta 4: Neighbors Leftovers -->
+                    <div class="plant-catalog-card" onclick="selectCatalogItem('nutrients', 15, this)">
+                        <div class="card-image-emulation"><span>🧪</span></div>
+                        <div class="card-meta-title">LEFTOVER SOIL</div>
+                        <div class="card-price-tag">15.00 AC</div>
+                    </div>
+                </div>
+
+                <!-- ACCIÓN DE INYECCIÓN / ADQUISICIÓN GENÉTICA -->
+                <button class="btn-action-spec" id="btn-deploy-seed-action" style="width: 100%;">
+                    GERMINAR EN SEMILLA VIRTUAL
+                </button>
+
+                <!-- INTERFAZ INTEGRADA DE AXIOM PLANT MAPS -->
+                <div style="border-top: 1px dashed rgba(57, 229, 138, 0.2); padding-top: 10px; margin-top: auto;">
+                    <div style="font-size:10px; color:var(--hud-border-cyan); font-weight:bold; margin-bottom:6px; letter-spacing:0.5px;">🗺️ AXIOM PLANT MAPS (LOCAL GEOLOCATION)</div>
+                    
+                    <div class="map-interactive-module">
+                        <canvas id="mini-map-canvas"></canvas>
+                        <div class="map-floating-tags" id="map-district-label">DISTRICT SECTOR: ACTIVE</div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:10px; color:var(--text-dark);">
+                        <span>STREET COMMERCE NETWORK</span>
+                        <span id="lbl-connected-neighbors" style="color:var(--hud-border-cyan);">NEIGHBORS: 4 NEARBY</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        `;
+    </script>
+    <style>
+        /* ESTILOS GRÁFICOS PARA LAS BARRAS DE ESTADO DEL HUD */
+        .hud-metric-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px;
+            border: 1px solid rgba(57, 229, 138, 0.1);
+            border-radius: 4px;
+        }
+
+        .hud-metric-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .hud-progress-track {
+            background: #050806;
+            border: 1px solid #1b3527;
+            height: 12px;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hud-progress-fill {
+            height: 100%;
+            width: 0%; /* Manipulado dinámicamente */
+            background: var(--hud-border-green);
+            box-shadow: 0 0 8px rgba(57, 229, 138, 0.5);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hud-progress-fill.fill-cyan { background: var(--hud-border-cyan); box-shadow: 0 0 8px rgba(0, 225, 255, 0.5); }
+        .hud-progress-fill.fill-amber { background: var(--hud-border-amber); box-shadow: 0 0 8px rgba(255, 170, 0, 0.5); }
+        .hud-progress-fill.fill-red { background: var(--hud-border-red); box-shadow: 0 0 8px rgba(255, 74, 74, 0.5); }
+
+        /* REJILLA DE MEDALLAS / LOGROS (FIDELIDAD A LA IMAGEN 4011.png) */
+        .badges-profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .badge-interactive-slot {
+            background: rgba(4, 7, 6, 0.8);
+            border: 1px solid #1b3527;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .badge-interactive-slot.unlocked-good {
+            opacity: 1;
+            border-color: var(--hud-border-amber);
+            background: rgba(255, 170, 0, 0.03);
+            box-shadow: 0 0 8px rgba(255, 170, 0, 0.1);
+        }
+
+        .badge-interactive-slot.unlocked-bad {
+            opacity: 1;
+            border-color: var(--hud-border-red);
+            background: rgba(255, 74, 74, 0.05);
+            animation: pulse-border-alert 2s infinite ease-in-out;
+        }
+
+        .badge-icon-frame {
+            font-size: 22px;
+            filter: grayscale(100%);
+        }
+        .unlocked-good .badge-icon-frame, .unlocked-bad .badge-icon-frame {
+            filter: grayscale(0%);
+        }
+
+        .badge-label-title {
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse-border-alert {
+            0% { border-color: rgba(255, 74, 74, 0.2); }
+            50% { border-color: rgba(255, 74, 74, 0.7); }
+            100% { border-color: rgba(255, 74, 74, 0.2); }
+        }
+    </style>
+
+    <script>
+        // INYECTAR LA ESTRUCTURA DEL PANEL DERECHO DIRECTAMENTE EN SU ANCLAJE
+        document.getElementById('anchor-right-panel').outerHTML = `
+        <section class="hud-panel panel-amber">
+            <div class="panel-header-anchor amber-text">
+                <span>🌱 ACTIVE GENETIC SIMULATION</span>
+                <span id="lbl-specimen-id-tag">ID: STANDBY</span>
+            </div>
+            
+            <div class="panel-body-scroll">
+                
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header">
+                        <span>SALUD BIOLÓGICA (VeroHealth)</span>
+                        <span id="txt-hud-health" style="color:var(--hud-border-green);">0%</span>
+                    </div>
+                    <div class="hud-progress-track">
+                        <div class="hud-progress-fill" id="bar-hud-health"></div>
+                    </div>
+                </div>
+
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header">
+                        <span>HIDRATACIÓN DE SUSTRATO</span>
+                        <span id="txt-hud-hydrate" style="color:var(--hud-border-cyan);">0%</span>
+                    </div>
+                    <div class="hud-progress-track">
+                        <div class="hud-progress-fill fill-cyan" id="bar-hud-hydrate"></div>
+                    </div>
+                </div>
+
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header">
+                        <span>ESTRÉS LUMÍNICO / TÉRMICO</span>
+                        <span id="txt-hud-stress" style="color:var(--hud-border-amber);">0%</span>
+                    </div>
+                    <div class="hud-progress-track">
+                        <div class="hud-progress-fill fill-amber" id="bar-hud-stress"></div>
+                    </div>
+                </div>
+
+                <div class="hud-metric-row">
+                    <div class="hud-metric-header">
+                        <span>CURADO EN BOTES (HUMEDAD)</span>
+                        <span id="txt-hud-cure" style="color:var(--hud-border-red);">0%</span>
+                    </div>
+                    <div class="hud-progress-track">
+                        <div class="hud-progress-fill fill-red" id="bar-hud-cure"></div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px;">
+                    <div class="hud-metric-row" style="padding:6px; text-align:center;">
+                        <span style="color:var(--text-dark); font-size:9px;">GENETIC SEX</span>
+                        <strong id="txt-hud-sex" style="letter-spacing:0.5px;">NONE</strong>
+                    </div>
+                    <div class="hud-metric-row" style="padding:6px; text-align:center;">
+                        <span style="color:var(--text-dark); font-size:9px;">TERPENE MULTIPLIER</span>
+                        <strong id="txt-hud-terpenes" style="color:var(--hud-border-cyan);">1.0x</strong>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="btn-action-spec" id="btn-hud-water" style="border-color:var(--hud-border-cyan); color:#fff; background:rgba(0,225,255,0.05);" disabled>REGAR</button>
+                    <button class="btn-action-spec" id="btn-hud-air" style="border-color:var(--hud-border-amber); color:#fff; background:rgba(255,170,0,0.05);" disabled>AIREAR BOTE</button>
+                </div>
+
+                <div style="border-top: 1px dashed rgba(255, 170, 0, 0.2); padding-top: 10px; margin-top: auto;">
+                    <div style="font-size:10px; color:var(--hud-border-amber); font-weight:bold; margin-bottom:8px; letter-spacing:0.5px; display:flex; justify-content:between;">
+                        <span>🏆 DISPLAY PROFILE BADGES</span>
+                        <span id="lbl-badge-count-ratio">0/4 UNLOCKED</span>
+                    </div>
+                    
+                    <div class="badges-profile-grid">
+                        <div class="badge-interactive-slot" id="slot-badge-2">
+                            <div class="badge-icon-frame">🥇</div>
+                            <div class="badge-label-title">HARDCORE GROWER</div>
+                        </div>
+                        <div class="badge-interactive-slot" id="slot-badge-3">
+                            <div class="badge-icon-frame">🛰️</div>
+                            <div class="badge-label-title">MAESTRO CLONADOR</div>
+                        </div>
+                        <div class="badge-interactive-slot" id="slot-badge-1">
+                            <div class="badge-icon-frame">💀</div>
+                            <div class="badge-label-title">GERANIUM KILLER</div>
+                        </div>
+                        <div class="badge-interactive-slot" id="slot-badge-0">
+                            <div class="badge-icon-frame">🍄</div>
+                            <div class="badge-label-title">REY DEL MOHO</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        `;
+    </script>
+    <style>
+        /* DISPOSICIÓN DE LOS ELEMENTOS DE TRÁFICO DE DATOS INFERIORES */
+        .bottom-hustle-terminal {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 15px;
+            height: 135px;
+            margin-top: auto;
+            z-index: 10;
+        }
+
+        .rust-backend-stream {
+            background: rgba(3, 6, 5, 0.9);
+            border: 1px solid rgba(57, 229, 138, 0.15);
+            border-radius: 6px;
+            padding: 10px;
+            overflow-y: auto;
+            list-style: none;
+            font-size: 11px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .rust-backend-stream li {
+            margin-bottom: 4px;
+            line-height: 14px;
+        }
+
+        .ai-street-coach-card {
+            background: var(--hud-bg-opaque);
+            border: 1px solid rgba(0, 225, 255, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .coach-speech-bubble {
+            background: #040706;
+            border: 1px dashed rgba(0, 225, 255, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 14px;
+            color: #b3f0ff;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* DISEÑO DE BOTONES FLOTANTES SOBRE EL CANVA CENTRAL DE LA PLANTA */
+        .ar-center-hologram-controls {
+            background: rgba(13, 22, 18, 0.85);
+            border: 1px solid rgba(57, 229, 138, 0.3);
+            border-radius: 4px;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .btn-ar-toggle {
+            background: #11252b;
+            border: 1px solid var(--hud-border-cyan);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn-ar-toggle:hover {
+            background: var(--hud-border-cyan);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px var(--text-glow-cyan);
+        }
+    </style>
+
+    <script>
+        // 1. INYECTAR LA BOTONERA DE CONTROL INMEDIATO EN LA ZONA AR CENTRAL
+        document.getElementById('anchor-center-hud').innerHTML = `
+            <div class="ar-center-hologram-controls" style="width: 100%;">
+                <div>AR HARDWARE ESTIMATION: <span id="lbl-light-probe-status" style="color:var(--hud-border-green);">STABLE (SH COEFFS)</span></div>
+                <button class="btn-ar-toggle" id="btn-request-ar-camera" onclick="initiateHardwareARCamera()">
+                    ACTIVAR MODO CAMARA AR
+                </button>
+            </div>
+            
+            <div class="ar-center-hologram-controls" style="justify-content: center; font-weight: bold; letter-spacing: 0.5px;">
+                <span id="btn-hud-clone-status">BIOLOGICAL CLONING WINDOW: CLOSED</span>
+            </div>
+        `;
+
+        // 2. CREAR E INYECTAR LA CONSOLA DE REGISTROS DE RED RUST Y EL AI MENTOR ABAJO DEL TODO
+        const mainGridParent = document.querySelector('.game-canvas-master');
+        const bottomPanelElement = document.createElement('section');
+        bottomPanelElement.className = 'bottom-hustle-terminal';
+        bottomPanelElement.innerHTML = `
+            <ul class="rust-backend-stream" id="rust-network-terminal-stream">
+                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[RUST_BACKEND]</span> Nodo de red síncrono inicializado. [span_1](start_span)Ejecutando barrido de proximidad BLE de 400ms[span_1](end_span).</li>
+                <li><span class="t-time">[00:00:00]</span><span class="t-tag info">[RUST_BACKEND]</span> Verificación de integridad superada con éxito. [span_2](start_span)[span_3](start_span)Esperando compra de clon o semilla libre[span_2](end_span)[span_3](end_span).</li>
+            </ul>
+
+            <div class="ai-street-coach-card">
+                <div style="font-size:10px; font-weight:bold; color:var(--hud-border-cyan); letter-spacing:0.5px;">🤖 AI MENTOR // BOTANICAL KNOWLEDGE</div>
+                <div class="coach-speech-bubble" id="txt-ai-coach-bubble">
+                    [span_4](start_span)"Buenas jefe. El mercado está libre de filtros corporativos. Elige un espécimen en el catálogo de la izquierda, gasta unas Axiom Coins y arranca tu granja virtual. Si activas la cámara AR, proyectaremos la planta en tu mesa real empleando los armónicos del entorno[span_4](end_span)."
+                </div>
+            </div>
+        `;
+        mainGridParent.appendChild(bottomPanelElement);
+    </script>
+    <script>
+        // --- DATA STRUCTURE ALIGNED WITH CPU CACHE LINES (FAxiomPlantGeneticData) ---
+        const ENGINE_STATE = {
             player: {
-                [span_7](start_span)axiomCoins: 1000.0, // Saldo del jugador para comprar o invertir[span_7](end_span)
-                [span_8](start_span)streetReputation: 1.0, // Índice de Karma Comercial que influye en los precios del Broker[span_8](end_span)
-                [span_9](start_span)bitmask: new Uint32Array(8), // Registro en caché física para 500 condiciones de logros sin Garbage Collector[span_9](end_span)
-                [span_10](start_span)unlockedBadges: [false, false, false, false] // Visor del perfil seleccionado[span_10](end_span)
+                axiomCoins: 1000.0,
+                streetReputation: 1.0,
+                bitmask: new Uint32Array(8), // Capacidad para 250 misiones buenas + 250 malas sin GC spikes
+                unlockedBadges: [false, false, false, false]
             },
             plant: {
                 active: false,
                 id: 0,
-                [span_11](start_span)[span_12](start_span)geneticSex: "None", // Male, Female, o la mutación Hermaphrodite por estrés[span_11](end_span)[span_12](end_span)
+                type: "none", // cannabis, amazonian, shamanic, nutrients
+                geneticSex: "None", // Male, Female, Hermaphrodite
                 tier: 1,
-                [span_13](start_span)[span_14](start_span)healthLevel: 1.0, // VeroHealth[span_13](end_span)[span_14](end_span)
-                [span_15](start_span)hydrationLevel: 1.0, // Nivel de riego de la planta[span_15](end_span)
-                [span_16](start_span)stressLevel: 0.0, // Estrés por fotoperiodo o condiciones extremas[span_16](end_span)
-                [span_17](start_span)pestInfectionRatio: 0.0, // Ratio de infección por plagas de la zona[span_17](end_span)
-                [span_18](start_span)moistureContent: 0.0, // Humedad del bote de curado[span_18](end_span)
-                [span_19](start_span)[span_20](start_span)chlorophyllDecay: 0.0, // Degradación de clorofila para multiplicar terpenos[span_19](end_span)[span_20](end_span)
-                [span_21](start_span)terpeneMultiplier: 1.0, // Multiplicador final de valor en el Broker[span_21](end_span)
+                healthLevel: 1.0, // VeroHealth
+                hydrationLevel: 1.0,
+                stressLevel: 0.0,
+                pestInfectionRatio: 0.0,
+                moistureContent: 0.0,
+                chlorophyllDecay: 0.0,
+                terpeneMultiplier: 1.0,
                 isCured: false,
-                [span_22](start_span)isAeterna: false, // La joya de la corona oculta[span_22](end_span)
-                [span_23](start_span)[span_24](start_span)lastCheckedTimestamp: 0 // Evaluación asíncrona por Unix Timestamp[span_23](end_span)[span_24](end_span)
+                isAeterna: false,
+                lastCheckedTimestamp: 0
             },
             motherPlants: {
                 hasMother: false,
-                sourceSex: "None",
                 clonesAvailable: 0
             },
-            simulation: {
-                [span_25](start_span)muleSpeed: 0, // Control de velocidad GPS del transportista[span_25](end_span)
-                [span_26](start_span)regionalPests: 5, // Simulación de plagas del distrito[span_26](end_span)
-                [span_27](start_span)baseMarketPrice: 100, // Precio base de oferta y demanda global[span_27](end_span)
-                [span_28](start_span)districtControl: 45 // Porcentaje de control territorial del gremio[span_28](end_span)
+            selectedItem: {
+                type: "cannabis",
+                cost: 10
             }
         };
 
-        // CONSTANTES DEL MOTOR BOTÁNICO BASE
-        const EvaporationRate = 0.008;
-        const PestInfectionSpeed = 0.005;
+        // CONSTANTES FÍSICAS DE LA EVALUACIÓN NO LINEAL
+        const EvaporationBaseRate = 0.015;
+        const GrowthIntervalSecs = 1;
 
-        // --- 2. SINTETIZADOR PROCEDIMENTAL DE AUDIO (EMULACIÓN METASOUNDS DE UNREAL) ---
-        let audioCtx = null;
-        let droneOscillator = null;
-        let granularNoise = null;
-        let synthGain = null;
-
-        function startMetaSoundsEngine() {
-            if (audioCtx) return;
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                droneOscillator = audioCtx.createOscillator();
-                granularNoise = audioCtx.createBiquadFilter();
-                synthGain = audioCtx.createGain();
-
-                droneOscillator.type = 'sawtooth';
-                droneOscillator.frequency.value = 110; [span_29](start_span)// Frecuencia de audio ambiental baja[span_29](end_span)
-                
-                granularNoise.type = 'lowpass';
-                granularNoise.frequency.value = 800;
-
-                synthGain.gain.value = 0.08;
-
-                droneOscillator.connect(granularNoise);
-                granularNoise.connect(synthGain);
-                synthGain.connect(audioCtx.destination);
-                
-                droneOscillator.start();
-                writeToTerminal("SYSTEM", "MetaSounds Engine: Frecuencia de audio procedimental síncrona activa.", "info");
-            } catch (err) {
-                console.log("Audio desactivado o bloqueado por el navegador.");
-            }
-        }
-
-        function tuneMetaSoundSynthesis() {
-            if (!audioCtx || !GAME_STATE.plant.active) return;
-            
-            const p = GAME_STATE.plant;
-            if (p.healthLevel <= 0) {
-                synthGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2); [span_30](start_span)// Parar sonido por Permadeath[span_30](end_span)
-                return;
-            }
-
-            [span_31](start_span)// Acordes limpios basados en salud o distorsión granular ante estrés extremo[span_31](end_span)
-            const targetFreq = 110 + (p.healthLevel * 60) - (p.stressLevel * 40);
-            droneOscillator.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.3);
-            
-            const targetCutoff = 400 + (p.hydrationLevel * 1000) - (p.pestInfectionRatio * 600);
-            granularNoise.frequency.setTargetAtTime(Math.max(120, targetCutoff), audioCtx.currentTime, 0.3);
-        }
-
-        // --- 3. MANIPULADOR DE MÁSCARA DE BITS PARA LOGROS (BITMASKING ENGINE) ---
-        [span_32](start_span)[span_33](start_span)// Logros indexed: 0 = Rey del Moho (Malo), 1 = Geranium Killer (Malo), 2 = Botánico Experto (Bueno), 3 = Maestro Clonador (Bueno)[span_32](end_span)[span_33](end_span)
-        function checkAndTriggerAchievement(index, isBad) {
-            const wordIdx = Math.floor(index / 32);
-            const bitIdx = index % 32;
-            
-            [span_34](start_span)// Verificar si el logro ya fue activado previamente leyendo la bitmask[span_34](end_span)
-            if ((GAME_STATE.player.bitmask[wordIdx] & (1 << bitIdx)) === 0) {
-                [span_35](start_span)// Registrar bit de logro para evitar sobrecarga en CPU[span_35](end_span)
-                GAME_STATE.player.bitmask[wordIdx] |= (1 << bitIdx);
-                GAME_STATE.player.unlockedBadges[index] = true;
-
-                const badgeElement = document.getElementById(`badge-${index}`);
-                badgeElement.classList.add('unlocked');
-
-                if (isBad) {
-                    GAME_STATE.player.streetReputation = Math.max(-1.0, GAME_STATE.player.streetReputation - 0.4); [span_36](start_span)// Caída de reputación[span_36](end_span)
-                    writeToTerminal("ALERT", `¡LOGRO INVOLUNTARIO! Has desbloqueado [${badgeElement.innerText}]. Roasteo público en los canales del barrio. Reputación dañada.`, "bad");
-                    triggerMentorSpeech(isBad, index);
-                } else {
-                    GAME_STATE.player.axiomCoins += 150; [span_37](start_span)// Recompensa de Axiom Coins por logro bueno[span_37](end_span)
-                    GAME_STATE.player.streetReputation = Math.min(2.0, GAME_STATE.player.streetReputation + 0.2);
-                    writeToTerminal("LOGROS", `¡HIT COMPLETADO! Desbloqueado: [${badgeElement.innerText}]. +150 AC inyectados en tu wallet.`, "good");
-                    triggerMentorSpeech(isBad, index);
-                }
-                
-                [span_38](start_span)// Verificar condición del Santo Grial: Limpiar los 250 logros buenos (para este vertical, los slots de éxitos)[span_38](end_span)
-                if (GAME_STATE.player.unlockedBadges[2] && GAME_STATE.player.unlockedBadges[3] && !GAME_STATE.plant.isAeterna) {
-                    unlockAxiomAeternaSeed();
-                }
-                
-                syncGameHUD();
-            }
-        }
-
-        // --- 4. MOTOR DE TRADUCCIÓN DE CONSEJOS: STREET AI MENTOR ---
-        function triggerMentorSpeech(isBad, index) {
-            const bubble = document.getElementById('ai-speech');
-            if (isBad) {
-                if (index === 1) {
-                    [span_39](start_span)[span_40](start_span)bubble.innerText = '"¡Felicidades, asesino de macetas! Has dejado morir tu cultivo central. En la calle ya te llaman Geranium Killer. Como no restaures tu reputación donando o cuidando clones, los viveros te van a clavar un 40% de recargo por manta."';[span_39](end_span)[span_40](end_span)
-                } else {
-                    [span_41](start_span)bubble.innerText = '"Menudo desastre, jefe. Has dejado que la humedad se estanque y te ha salido moho en los botes de curado. El lote entero se va a la basura. ¡Ábrelos a diario para airear el producto o vas a quebrar!"';[span_41](end_span)
-                }
-            } else {
-                if (index === 2) {
-                    [span_42](start_span)bubble.innerText = '"Ahí se ve la mano de un cirujano botánico. Has estabilizado una planta hasta su madurez óptima sin una sola plaga. Sigue acumulando hitos para desbloquear la Axiom Aeterna, la planta prohibida."';[span_42](end_span)
-                } else {
-                    [span_43](start_span)[span_44](start_span)bubble.innerText = '"Dominas el arte de la clonación. Cortar esquejes en la ventana exacta te asegura mantener las genéticas hembra productivas sin gastar monedas constantemente. Eres el rey del distrito."';[span_43](end_span)[span_44](end_span)
-                }
-            }
-        }
-
-        function unlockAxiomAeternaSeed() {
-            GAME_STATE.plant.isAeterna = true;
-            writeToTerminal("HOLY_GRAIL", "¡ALERTA REVOLUCIONARIA! Has desbloqueado la legendaria AXIOM AETERNA. No se compra con dinero. Comienza el protocolo de alta fidelidad AR.", "good");
-            [span_45](start_span)[span_46](start_span)[span_47](start_span)document.getElementById('ai-speech').innerText = '"No me lo creo, has limpiado el tablero de méritos de la calle. Tienes delante la Axiom Aeterna. Sus filamentos ciber-orgánicos responden al clima real y a la luz de tu habitación. Cuídala con tu vida: si muere, el contador vuelve a cero."';[span_45](end_span)[span_46](end_span)[span_47](end_span)
-        }
-
-        // --- 5. LÓGICA DE NEGOCIO INTERACTIVA DEL VIDEOJUEGO ---
-        function writeToTerminal(system, text, type) {
-            const terminal = document.getElementById('game-terminal');
+        // MANEJADOR DE CONSOLA DEL BACKEND DE RUST
+        function logToRustNetwork(system, text, type) {
+            const stream = document.getElementById('rust-network-terminal-stream');
             const timeStr = new Date().toTimeString().split(' ')[0];
             const li = document.createElement('li');
             li.innerHTML = `<span class="t-time">[${timeStr}]</span><span class="t-tag ${type}">[${system}]</span>${text}`;
-            terminal.appendChild(li);
-            terminal.scrollTop = terminal.scrollHeight;
-            if (terminal.children.length > 25) terminal.removeChild(terminal.children[0]);
+            stream.appendChild(li);
+            stream.scrollTop = stream.scrollHeight;
+            if (stream.children.length > 30) stream.removeChild(stream.children[0]);
         }
 
-        document.getElementById('btn-buy-seed').addEventListener('click', () => {
-            startMetaSoundsEngine();
-            if (GAME_STATE.player.axiomCoins < 10) {
-                writeToTerminal("BROKER", "Fondos insuficientes para adquirir una semilla digital básica.", "bad");
+        // CONTROL DE SELECCIÓN DEL CATÁLOGO DEL MERCADO INTERACTIVO
+        function selectCatalogItem(type, cost, element) {
+            document.querySelectorAll('.plant-catalog-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            ENGINE_STATE.selectedItem.type = type;
+            ENGINE_STATE.selectedItem.cost = cost;
+            logToRustNetwork("MARKET_P2P", `Seleccionado espécimen [${type.toUpperCase()}]. Coste: ${cost} AC.`, "info");
+        }
+
+        // CONTROLADOR DE COMPRA Y GERMINACIÓN DE LA VIRTUAL FARM
+        document.getElementById('btn-deploy-seed-action').addEventListener('click', () => {
+            triggerAudioTone();
+            const player = ENGINE_STATE.player;
+            const item = ENGINE_STATE.selectedItem;
+            
+            // Comprobar saldo en la Wallet
+            if (player.axiomCoins < item.cost) {
+                logToRustNetwork("ANTI_CHEAT", "Transacción bloqueada: Saldo de Axiom Coins insuficiente.", "bad");
+                document.getElementById('txt-ai-coach-bubble').innerText = '"Oye socio, estás limpio en la calle. No tienes suficientes Axiom Coins para pagarle al proveedor del vivero. Vende algún lote o muévete por el mapa para rascar algo."';
                 return;
             }
-            GAME_STATE.player.axiomCoins -= 10;
-            initializeNewCropInstance(false);
-        });
 
-        document.getElementById('btn-buy-premium').addEventListener('click', () => {
-            startMetaSoundsEngine();
-            if (GAME_STATE.player.axiomCoins < 9.99) {
-                writeToTerminal("BROKER", "Fondos de Axiom Coins insuficientes para activar el Invernadero Virtual Pro.", "bad");
-                return;
-            }
-            GAME_STATE.player.axiomCoins -= 9.99;
-            initializeNewCropInstance(true);
-        });
-
-        function initializeNewCropInstance(isPremium) {
-            const p = GAME_STATE.plant;
+            // Descontar saldo de la transacción cifrada en Rust
+            player.axiomCoins -= item.cost;
+            
+            // Instanciar el Actor Botánico Base sin hilos redundantes Tick
+            const p = ENGINE_STATE.plant;
             p.active = true;
-            p.id = Math.floor(100000 + Math.random() * 900000);
-            [span_48](start_span)p.healthLevel = 1.0;[span_48](end_span)
-            [span_49](start_span)p.hydrationLevel = 1.0;[span_49](end_span)
-            [span_50](start_span)p.stressLevel = 0.0;[span_50](end_span)
-            [span_51](start_span)p.pestInfectionRatio = 0.0;[span_51](end_span)
+            p.id = Math.floor(100000 + Math.random() * 899999);
+            p.type = item.type;
+            p.healthLevel = 1.0;
+            p.hydrationLevel = 1.0;
+            p.stressLevel = 0.0;
+            p.pestInfectionRatio = 0.0;
             p.moistureContent = 0.0;
             p.chlorophyllDecay = 0.0;
             p.terpeneMultiplier = 1.0;
             p.isCured = false;
-            [span_52](start_span)p.lastCheckedTimestamp = Math.floor(Date.now() / 1000);[span_52](end_span)
+            p.lastCheckedTimestamp = Math.floor(Date.now() / 1000);
 
-            [span_53](start_span)[span_54](start_span)// El resultado de la semilla es 100% estocástico callejero: Macho o Hembra[span_53](end_span)[span_54](end_span)
-            if (isPremium) {
-                p.geneticSex = "Female";
-                p.tier = 2;
-                writeToTerminal("FACTORY", `Paquete Pro Inyectado: Instancia Hembra F1 certificada de alto rendimiento Tier 2.`, "good");
+            // Algoritmo Determinístico: 100% aleatorio si sale Macho o Hembra
+            p.geneticSex = Math.random() > 0.45 ? "Female" : "Male";
+            p.tier = item.cost >= 25 ? 2 : 1;
+
+            logToRustNetwork("RUST_SERVER", `Germinación en celda Spatial Hash completada. ID del Actor: #AX-${p.id}. Sexo: ${p.geneticSex.toUpperCase()}`, "good");
+            
+            // Activar pasarelas de control en el HUD
+            document.getElementById('btn-hud-water').disabled = false;
+            document.getElementById('btn-hud-air').disabled = true;
+
+            if (p.geneticSex === "Female") {
+                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL CLONING WINDOW: OPEN";
+                document.getElementById('btn-hud-clone-status').style.color = "var(--hud-border-green)";
             } else {
-                p.geneticSex = Math.random() > 0.4 ? [span_55](start_span)"Female" : "Male";[span_55](end_span)
-                p.tier = 1;
-                writeToTerminal("FACTORY", `Semilla germinada. Resultado de ADN: [${p.geneticSex.toUpperCase()}]. Operando bajo fotoperiodo local.`, "info");
-                if (p.geneticSex === "Male") {
-                    [span_56](start_span)writeToTerminal("AVISO", "¡Cuidado! Un macho florecido liberará polen en 1km reventando la resina de tus vecinos hembra.", "bad");[span_56](end_span)
+                document.getElementById('btn-hud-clone-status').innerText = "BIOLOGICAL WINDOW: MALE POLLEN RISK";
+                document.getElementById('btn-hud-clone-status').style.color = "var(--hud-border-amber)";
+            }
+
+            syncVisualDOM();
+        });
+
+        // ACCIONES COMPLEMENTARIAS: REGAR
+        document.getElementById('btn-hud-water').addEventListener('click', () => {
+            triggerAudioTone();
+            if (!ENGINE_STATE.plant.active || ENGINE_STATE.plant.healthLevel <= 0) return;
+            ENGINE_STATE.plant.hydrationLevel = Math.min(1.0, ENGINE_STATE.plant.hydrationLevel + 0.3);
+            logToRustNetwork("CULTIVO_AR", "Inyección local de nutrientes e hidratación al sustrato.", "good");
+            syncVisualDOM();
+        });
+
+        // ACCIONES COMPLEMENTARIAS: AIREAR BOTE DE CURADO
+        document.getElementById('btn-hud-air').addEventListener('click', () => {
+            triggerAudioTone();
+            const p = ENGINE_STATE.plant;
+            if (!p.active || p.moistureContent === 0) return;
+            // Ventilar la humedad estancada antes de que coja moho total
+            p.moistureContent = Math.max(0.12, p.moistureContent - 0.25);
+            logToRustNetwork("CURING_ROOM", "Apertura manual del frasco hermético: Humedad purgada.", "info");
+            syncVisualDOM();
+        });
+
+        // EVALUACIÓN NO LINEAL POR DELTAS DE TIEMPO (UNIX TIMESTAMPS)
+        function evaluateBiologicalLazyPipeline() {
+            const p = ENGINE_STATE.plant;
+            if (!p.active || p.healthLevel <= 0) return;
+
+            const now = Math.floor(Date.now() / 1000);
+            let delta = now - p.lastCheckedTimestamp;
+            if (delta <= 0) delta = 1;
+
+            const simSpeed = parseFloat(document.getElementById('sim-speed').value);
+            const simPests = parseFloat(document.getElementById('sim-pests').value);
+
+            // 1. Drenaje de Hidratación e impacto de plagas configuradas en HUD
+            p.hydrationLevel = Math.max(0.0, p.hydrationLevel - (EvaporationBaseRate * delta));
+            if (simPests > 15) {
+                p.pestInfectionRatio = Math.min(1.0, p.pestInfectionRatio + (0.008 * delta));
+            }
+
+            // 2. Acumulación de Estrés Lumínico/Térmico e inversión metabólica
+            if (p.hydrationLevel < 0.25 || p.pestInfectionRatio > 0.45) {
+                p.stressLevel = Math.min(1.0, p.stressLevel + (0.06 * delta));
+                p.healthLevel = Math.max(0.0, p.healthLevel - (0.05 * delta));
+            } else {
+                p.stressLevel = Math.max(0.0, p.stressLevel - (0.03 * delta));
+            }
+
+            // 3. Mutación de Sexo por estrés (Hermafroditismo inducido del GDD)
+            if (p.stressLevel > 0.82 && p.geneticSex === "Female") {
+                p.geneticSex = "Hermaphrodite";
+                logToRustNetwork("GENETIC_CORE", "Mutación de emergencia: Estructura variada a Hermafrodita por estrés.", "bad");
+            }
+
+            // 4. Mecánica de Daños de Transporte si la velocidad supera 30 km/h
+            if (simSpeed > 30) {
+                p.healthLevel = Math.max(0.0, p.healthLevel - (0.08 * delta));
+                if (Math.random() > 0.7) {
+                    logToRustNetwork("LOGISTICS_FAIL", "Lote dañado: Movimiento de mula superior a 30 km/h.", "bad");
                 }
             }
 
-            document.getElementById('btn-water').disabled = false;
-            document.getElementById('btn-cut-clone').disabled = p.geneticSex !== "Female";
-            document.getElementById('btn-sell-crop').disabled = false;
-            document.getElementById('btn-air-jar').disabled = true;
-
-            syncGameHUD();
-        }
-
-        document.getElementById('btn-water').addEventListener('click', () => {
-            if (!GAME_STATE.plant.active) return;
-            GAME_STATE.plant.hydrationLevel = Math.min(1.0, GAME_STATE.plant.hydrationLevel + 0.25);
-            writeToTerminal("CULTIVO", "Sustrato hidratado. Absorción asíncrona de sales minerales completada.", "good");
-            syncGameHUD();
-        });
-
-        document.getElementById('btn-cut-clone').addEventListener('click', () => {
-            const p = GAME_STATE.plant;
-            if (!p.active || p.geneticSex !== "Female") return;
-            
-            // Establecer Planta Madre y asegurar clones futuros
-            GAME_STATE.motherPlants.hasMother = true;
-            GAME_STATE.motherPlants.sourceSex = "Female";
-            GAME_STATE.motherPlants.clonesAvailable += 2;
-            
-            writeToTerminal("GENÉTICA", "Ventana biológica aprovechada: Cortados 2 esquejes sanos. Establecida Planta Madre Virtual.", "good");
-            checkAndTriggerAchievement(3, false); // Logro Maestro Clonador
-            syncGameHUD();
-        });
-
-        document.getElementById('btn-air-jar').addEventListener('click', () => {
-            const p = GAME_STATE.plant;
-            if (!p.active || p.moistureContent === 0) return;
-            // Ventilar botes purga el exceso de humedad para evitar hongos
-            p.moistureContent = Math.max(0.10, p.moistureContent - 0.20);
-            writeToTerminal("CURADO", "Botes abiertos temporalmente. Gas clorofílico liberado, regulando humedad.", "info");
-            syncGameHUD();
-        });
-
-        document.getElementById('btn-sell-crop').addEventListener('click', () => {
-            const p = GAME_STATE.plant;
-            const sim = GAME_STATE.simulation;
-            if (!p.active) return;
-
-            let finalPayout = sim.baseMarketPrice * p.terpeneMultiplier * GAME_STATE.player.streetReputation;
-            
-            // Penalización por peaje de control de Crew rival si no dominan el sector
-            if (sim.districtControl < 60) {
-                const tax = finalPayout * 0.02; // Tasa de peaje del 2% en transacciones P2P
-                finalPayout -= tax;
-                [span_57](start_span)writeToTerminal("BROKER", `Impuesto territorial del 2% cobrado por la Crew dominante de esta celda de Spatial Hash.`, "bad");[span_57](end_span)
-            }
-
-            // Aplicar pérdidas por transporte inestable si va muy rápido en coche
-            if (sim.muleSpeed > 30) {
-                finalPayout *= 0.5; // Calidad biológica mermada un 50%
-                [span_58](start_span)writeToTerminal("LOGÍSTICA", `Pérdida del 50% del valor comercial: El lote sufrió daños críticos por mover la mula a más de 30 km/h.`, "bad");[span_58](end_span)
-            }
-
-            if (p.geneticSex === "Male") {
-                finalPayout = 2; // Un macho apenas tiene valor en el mercado y es considerado un timo
-                writeToTerminal("BROKER", "Traspaso cerrado. Has colocado un macho inútil a precio de saldo. ¡Cuidado con las venganzas!", "bad");
-            }
-
-            GAME_STATE.player.axiomCoins += finalPayout;
-            writeToTerminal("MERCADO", `Transacción P2P liquidada en la red Rust. Ingresados +${finalPayout.toFixed(2)} AC en tu wallet.`, "good");
-            
-            if (p.geneticSex === "Female" && !p.isCured && p.healthLevel > 0.5) {
-                checkAndTriggerAchievement(2, false); // Logro Botánico Experto
-            }
-
-            // Resetear ranura de cultivo tras la venta
-            p.active = false;
-            document.getElementById('btn-water').disabled = true;
-            document.getElementById('btn-cut-clone').disabled = true;
-            document.getElementById('btn-sell-crop').disabled = true;
-            document.getElementById('btn-air-jar').disabled = true;
-            
-            syncGameHUD();
-        });
-
-        // --- 6. SIMULACIÓN DEL TIEMPO REAL COSTE $O(1)$ (EVALUACIÓN LAZY PASIVA) ---
-        function executePassiveLifeCycle() {
-            if (!GAME_STATE.plant.active || GAME_STATE.plant.healthLevel <= 0) return;
-
-            const p = GAME_STATE.plant;
-            const sim = GAME_STATE.simulation;
-
-            // Degradación de hidratación basada en plagas y entorno
-            const pestFactor = 1 + (sim.regionalPests / 50);
-            p.hydrationLevel = Math.max(0.0, p.hydrationLevel - EvaporationRate * pestFactor);
-            
-            // Infección de plagas local
-            if (sim.regionalPests > 20) {
-                p.pestInfectionRatio = Math.min(1.0, p.pestInfectionRatio + PestInfectionSpeed);
-            }
-
-            [span_59](start_span)// Si la hidratación cae a niveles críticos, se acumula estrés biolónigo[span_59](end_span)
-            if (p.hydrationLevel < 0.25 || p.pestInfectionRatio > 0.40) {
-                p.stressLevel = Math.min(1.0, p.stressLevel + 0.05);
-                [span_60](start_span)p.healthLevel = Math.max(0.0, p.healthLevel - 0.04);[span_60](end_span)
-            } else {
-                p.stressLevel = Math.max(0.0, p.stressLevel - 0.02);
-            }
-
-            [span_61](start_span)// Mutación por estrés extremo de la hembra (Hermafroditismo F1)[span_61](end_span)
-            if (p.stressLevel > 0.75 && p.geneticSex === "Female") {
-                [span_62](start_span)p.geneticSex = "Hermaphrodite";[span_62](end_span)
-                writeToTerminal("MUTACIÓN", "CRÍTICO: El estrés continuado por falta de riego alteró los cromosomas a Hermafrodita.", "bad");
-            }
-
-            [span_63](start_span)// Fase de secado y curado automático en botes tras madurez si la hidratación no se atiende[span_63](end_span)
+            // 5. Transición Automática a Secado/Curado si se deja secar a propósito
             if (p.hydrationLevel === 0 && !p.isCured) {
                 if (p.moistureContent === 0) {
-                    p.moistureContent = 0.95; [span_64](start_span)// Pasa a estado de secado en botes herméticos[span_64](end_span)
-                    document.getElementById('btn-air-jar').disabled = false;
-                    [span_65](start_span)writeToTerminal("CURADO", "Planta cosechada de forma automática. Producto almacenado en botes. Cuidado con la humedad.", "info");[span_65](end_span)
+                    p.moistureContent = 0.75;
+                    document.getElementById('btn-hud-air').disabled = false;
+                    logToRustNetwork("BROKER", "Cosecha forzada por sequía: Producto en fase de curado hermético.", "info");
                 } else {
-                    [span_66](start_span)[span_67](start_span)// La clorofila se degrada pero si la humedad excede el 85% coge moho[span_66](end_span)[span_67](end_span)
-                    p.moistureContent = Math.min(1.0, p.moistureContent + 0.02);
-                    p.chlorophyllDecay = Math.min(1.0, p.chlorophyllDecay + 0.04);
-                    
+                    // Simulación del moho vs degradación perfecta de clorofila
+                    p.moistureContent = Math.min(1.0, p.moistureContent + (0.03 * delta));
+                    p.chlorophyllDecay = Math.min(1.0, p.chlorophyllDecay + (0.05 * delta));
+
                     if (p.moistureContent > 0.85) {
-                        checkAndTriggerAchievement(0, true); // Logro Rey del Moho
-                        p.healthLevel = 0; [span_68](start_span)// Pérdida total del lote[span_68](end_span)
-                    } else if (p.chlorophyllDecay >= 0.90) {
+                        p.healthLevel = 0; // Se pudre del todo
+                        triggerSavageAchievement(0, true); // Desbloquea logro Rey del Moho
+                    } else if (p.chlorophyllDecay >= 0.9) {
                         p.isCured = true;
-                        p.terpeneMultiplier = 3.0; [span_69](start_span)// Perfil de terpenos se multiplica por 3[span_69](end_span)
-                        [span_70](start_span)writeToTerminal("CURADO", "ÉXITO: Clorofila totalmente purgada. Los terpenos se han triplicado.", "good");[span_70](end_span)
+                        p.terpeneMultiplier = 3.0; // Multiplica el precio por 3
+                        logToRustNetwork("CURING_ROOM", "¡Curado óptimo! Clorofila destruida. Terpenos x3.", "good");
+                        triggerSavageAchievement(2, false); // Logro Botánico Experto
                     }
                 }
             }
 
-            [span_71](start_span)[span_72](start_span)// Protocolo de muerte definitiva (Permadeath Extrema)[span_71](end_span)[span_72](end_span)
+            // 6. Comprobación del Protocolo de Muerte Permanente (Permadeath)
             if (p.healthLevel <= 0) {
                 p.healthLevel = 0;
-                checkAndTriggerAchievement(1, true); [span_73](start_span)// Logro Geranium Killer[span_73](end_span)
-                [span_74](start_span)[span_75](start_span)writeToTerminal("PERMADEATH", "Tu espécimen ha colapsado biológicamente. Niagara Particle Protocol ejecutado.", "bad");[span_74](end_span)[span_75](end_span)
+                triggerSavageAchievement(1, true); // Logro Geranium Killer
+                logToRustNetwork("SERVER_BACKEND", `PERMADEATH PROTOCOL ejecutado para #AX-${p.id}. Geometría destruida.`, "bad");
                 
-                [span_76](start_span)// Dropear semilla corrupta en las coordenadas simuladas de Spatial Hashing[span_76](end_span)
-                const currentCell = getSpatialHash(sim.muleSpeed, sim.regionalPests);
-                [span_77](start_span)writeToTerminal("SERVER", `Firma genética condensada en Semilla Corrupta. Arrojada en Dead Drop en celda: ${currentCell}`, "info");[span_77](end_span)
+                // Forzar arrojo de Semilla Corrupta en el Spatial Hash actual
+                logToRustNetwork("DEAD_DROP", `Semilla Corrupta liberada en las coordenadas de la celda actual.`, "info");
                 
-                document.getElementById('btn-water').disabled = true;
-                document.getElementById('btn-cut-clone').disabled = true;
-                document.getElementById('btn-sell-crop').disabled = true;
-                document.getElementById('btn-air-jar').disabled = true;
+                document.getElementById('btn-hud-water').disabled = true;
+                document.getElementById('btn-hud-air').disabled = true;
             }
 
-            tuneMetaSoundSynthesis();
-            syncGameHUD();
+            p.lastCheckedTimestamp = now;
+            syncVisualDOM();
         }
 
-        // --- 7. ACTUALIZACIÓN GRÁFICA DEL HUD DE JUEGO (DOM) ---
-        function syncGameHUD() {
-            const p = GAME_STATE.plant;
-            const player = GAME_STATE.player;
-            const sim = GAME_STATE.simulation;
+        // CONTROLADOR DE SINK DEL DISPATCHER DE LOGROS POR BITMASK
+        function triggerSavageAchievement(index, isBad) {
+            const wordIndex = Math.floor(index / 32);
+            const bitIndex = index % 32;
 
-            document.getElementById('lbl-rep').innerText = player.streetReputation.toFixed(2);
+            // Verificar bit con bitmasking directo en caché
+            if ((ENGINE_STATE.player.bitmask[wordIndex] & (1 << bitIndex)) === 0) {
+                ENGINE_STATE.player.bitmask[wordIndex] |= (1 << bitIndex);
+                ENGINE_STATE.player.unlockedBadges[index] = true;
+
+                const targetSlot = document.getElementById(`slot-badge-${index}`);
+                targetSlot.classList.add(isBad ? 'unlocked-bad' : 'unlocked-good');
+
+                if (isBad) {
+                    ENGINE_STATE.player.streetReputation = Math.max(-0.5, ENGINE_STATE.player.streetReputation - 0.4);
+                    // Disparar el modal holográfico parpadeante en rojo idéntico a 4011.png
+                    const modal = document.getElementById('public-roast-popup');
+                    const msg = document.getElementById('roast-popup-message');
+                    modal.style.display = 'flex';
+                    msg.innerText = index === 1 ? `"GERANIUM KILLER (CROP COLLAPSE DETECTED)"` : `"REY DEL MOHO (MOHO TOTAL EN BOTES)"`;
+                } else {
+                    ENGINE_STATE.player.axiomCoins += 500; // Inyectar saldo limpio de recompensa
+                    ENGINE_STATE.player.streetReputation = Math.min(2.0, ENGINE_STATE.player.streetReputation + 0.3);
+                }
+
+                // Evaluar si cumple las condiciones del Santo Grial (Axiom Aeterna) al limpiar logros buenos
+                if (ENGINE_STATE.player.unlockedBadges[2] && !ENGINE_STATE.plant.isAeterna) {
+                    ENGINE_STATE.plant.isAeterna = true;
+                    logToRustNetwork("HOLY_GRAIL", "¡AXIOM AETERNA ACTIVADA! Desbloqueado render de mallas translúcidas.", "good");
+                }
+
+                syncVisualDOM();
+            }
+        }
+
+        document.getElementById('btn-close-roast').addEventListener('click', () => {
+            document.getElementById('public-roast-popup').style.display = 'none';
+        });
+
+        // REFRESCAR LOS VALORES E INDICADORES DE RENDERIZADO DEL DOM
+        function syncVisualDOM() {
+            const p = ENGINE_STATE.plant;
+            const player = ENGINE_STATE.player;
+
             document.getElementById('lbl-coins').innerText = player.axiomCoins.toFixed(2) + " AC";
+            document.getElementById('lbl-rep').innerText = player.streetReputation.toFixed(2);
+
+            document.getElementById('txt-hud-health').innerText = Math.floor(p.healthLevel * 100) + "%";
+            document.getElementById('bar-hud-health').style.width = (p.healthLevel * 100) + "%";
+            document.getElementById('bar-hud-health').className = `hud-progress-fill ${p.healthLevel < 0.3 ? 'fill-red' : p.healthLevel < 0.7 ? 'fill-amber' : ''}`;
+
+            document.getElementById('txt-hud-hydrate').innerText = Math.floor(p.hydrationLevel * 100) + "%";
+            document.getElementById('bar-hud-hydrate').style.width = (p.hydrationLevel * 100) + "%";
+
+            document.getElementById('txt-hud-stress').innerText = Math.floor(p.stressLevel * 100) + "%";
+            document.getElementById('bar-hud-stress').style.width = (p.stressLevel * 100) + "%";
+
+            document.getElementById('txt-hud-cure').innerText = Math.floor(p.moistureContent * 100) + "%";
+            document.getElementById('bar-hud-cure').style.width = (p.moistureContent * 100) + "%";
+
+            document.getElementById('txt-hud-sex').innerText = p.active ? p.geneticSex.toUpperCase() : "NONE";
+            document.getElementById('txt-hud-sex').style.color = p.geneticSex === "Female" ? "var(--hud-border-green)" : p.geneticSex === "Male" ? "var(--hud-border-amber)" : "#fff";
+            document.getElementById('txt-hud-terpenes').innerText = p.terpeneMultiplier.toFixed(1) + "x";
             
-            document.getElementById('txt-health').innerText = Math.floor(p.healthLevel * 100) + "%";
-            document.getElementById('bar-health').style.width = (p.healthLevel * 100) + "%";
+            document.getElementById('lbl-specimen-id-tag').innerText = p.active ? `ID: #AX-${p.id}` : "ID: STANDBY";
+
+            // Sincronizar contadores de insignias en HUD
+            let count = 0;
+            player.unlockedBadges.forEach(b => { if(b) count++; });
+            document.getElementById('lbl-badge-count-ratio').innerText = `${count}/4 UNLOCKED`;
             
-            document.getElementById('txt-hydrate').innerText = Math.floor(p.hydrationLevel * 100) + "%";
-            document.getElementById('bar-hydrate').style.width = (p.hydrationLevel * 100) + "%";
-
-            document.getElementById('txt-stress').innerText = Math.floor(p.stressLevel * 100) + "%";
-            document.getElementById('bar-stress').style.width = (p.stressLevel * 100) + "%";
-
-            document.getElementById('txt-cure').innerText = Math.floor(p.moistureContent * 100) + "%";
-            document.getElementById('bar-cure').style.width = (p.moistureContent * 100) + "%";
-
-            if (p.active) {
-                document.getElementById('txt-sex').innerText = `${p.geneticSex.toUpperCase()} (TIER ${p.tier})`;
-                document.getElementById('txt-sex').style.color = p.geneticSex === "Female" ? "var(--neon-green)" : "var(--neon-amber)";
-            } else {
-                document.getElementById('txt-sex').innerText = "NINGUNO";
-                document.getElementById('txt-sex').style.color = "var(--text-dark)";
-            }
-
-            // Datos de la Planta Madre
-            if (GAME_STATE.motherPlants.hasMother) {
-                document.getElementById('lbl-clones-title').innerText = `Madre: Cepa Híbrida F1`;
-                document.getElementById('lbl-clones-count').innerText = `Esquejes disponibles: ${GAME_STATE.motherPlants.clonesAvailable}`;
-                document.getElementById('lbl-clones-count').style.color = "var(--neon-green)";
-            }
-
-            [span_78](start_span)// Precios de mercado modificados por tu reputación comercial de la calle[span_78](end_span)
-            const computedPrice = sim.baseMarketPrice * p.terpeneMultiplier * player.streetReputation;
-            document.getElementById('lbl-market-price').innerText = `${computedPrice.toFixed(0)} AC`;
-            
-            document.getElementById('lbl-speed-val').innerText = `${sim.muleSpeed} km/h`;
-            document.getElementById('lbl-pests-val').innerText = `${sim.regionalPests}%`;
-            document.getElementById('lbl-gps-node').innerText = `CELL: ${getSpatialHash(sim.muleSpeed, sim.regionalPests)}`;
+            // Sincronizar etiquetas de telemetría de sliders
+            document.getElementById('lbl-speed-val').innerText = document.getElementById('sim-speed').value + " km/h";
+            document.getElementById('lbl-pests-val').innerText = document.getElementById('sim-pests').value + "%";
         }
 
-        // --- 8. VINCULACIÓN DE CONTROLES DE LA TELEMETRÍA DE JUEGO ---
-        document.getElementById('sim-speed').addEventListener('input', (e) => {
-            GAME_STATE.simulation.muleSpeed = parseInt(e.target.value);
-            syncGameHUD();
-        });
-
-        document.getElementById('sim-pests').addEventListener('input', (e) => {
-            GAME_STATE.simulation.regionalPests = parseInt(e.target.value);
-            syncGameHUD();
-        });
-
-        // --- 9. PIPELINE VISUAL (REJILLA GEO-ESPACIAL EN CANVAS DE JUEGO) ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const rWrapper = document.getElementById('radar-wrapper');
-
-        function fixCanvasDimensions() {
-            canvas.width = rWrapper.clientWidth;
-            canvas.height = rWrapper.clientHeight;
-        }
-        window.addEventListener('resize', fixCanvasDimensions);
-        fixCanvasDimensions();
-
-        function renderGameGraphicsLoop(time) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Registro del bucle de simulación botánica pasiva
+        setInterval(evaluateBiologicalLazyPipeline, GrowthIntervalSecs * 1000);
+    </script>
+    <script>
+        // --- 1. ACCESO REAL A HARDWARE DE CÁMARA (NATIVE WEB AR EMULATION) ---
+        async function initiateHardwareARCamera() {
+            const video = document.getElementById('ar-video-feed');
+            const btn = document.getElementById('btn-request-ar-camera');
             
-            [span_79](start_span)// Dibujar mapa de cuadrícula de distritos (Spatial Hashing Index)[span_79](end_span)
-            ctx.strokeStyle = "rgba(27, 53, 39, 0.25)";
-            ctx.lineWidth = 1;
-            const grid = 30;
-            for(let x=0; x < canvas.width; x+=grid) {
-                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            try {
+                // Solicitar flujos multimedia del dispositivo en tiempo real
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }, // Cámara trasera si es móvil
+                    audio: false
+                });
+                video.srcObject = stream;
+                video.style.opacity = "0.75"; // Elevar opacidad para integrar el fondo real
+                btn.innerText = "AR CAMERA: ACTIVE";
+                btn.style.borderColor = "var(--hud-border-green)";
+                logToRustNetwork("HARDWARE_AR", "Capa ARCore/ARKit emulada: Permisos de cámara concedidos. SH Coeffs estables.", "good");
+                initWebAudioContextDriver();
+            } catch (err) {
+                console.warn("Acceso a la cámara denegado o no disponible. Activando feed sintético.");
+                video.style.background = "#050e0a";
+                btn.innerText = "AR FEED: SIMULATED";
+                logToRustNetwork("HARDWARE_AR", "Cámara no detectada. Activando matriz de simulación cromática persistente.", "info");
+                initWebAudioContextDriver();
             }
-            for(let y=0; y < canvas.height; y+=grid) {
-                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        // --- 2. DRIVER DE AUDIO NATIVO (SÍNTESIS DE PITIDOS DE INTERFAZ Y DRONES) ---
+        let webAudioCtx = null;
+
+        function initWebAudioContextDriver() {
+            if (webAudioCtx) return;
+            webAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            logToRustNetwork("METASOUNDS", "Sintetizador procedimental enlazado a variables biológicas.", "info");
+        }
+
+        function triggerAudioTone() {
+            if (!webAudioCtx) return;
+            // Pitido síncrono de confirmación de transacción estilo ciberpunk
+            const osc = webAudioCtx.createOscillator();
+            const gain = webAudioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(880, webAudioCtx.currentTime); // Tono agudo limpio
+            gain.gain.setValueAtTime(0.04, webAudioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, webAudioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(webAudioCtx.destination);
+            osc.start();
+            osc.stop(webAudioCtx.currentTime + 0.15);
+        }
+
+        // --- 3. MOTOR GRÁFICO CENTRAL (CANVAS RENDER BUCLE EN TIEMPO REAL) ---
+        const arCanvas = document.getElementById('ar-canvas-layer');
+        const arCtx = arCanvas.getContext('2d');
+        const mapCanvas = document.getElementById('mini-map-canvas');
+        const mapCtx = mapCanvas.getContext('2d');
+
+        function resizeGraphicViewports() {
+            const parent = document.getElementById('center-zone-parent');
+            arCanvas.width = parent.clientWidth;
+            arCanvas.height = parent.clientHeight;
+
+            const mapParent = mapCanvas.parentElement;
+            mapCanvas.width = mapParent.clientWidth;
+            mapCanvas.height = mapParent.clientHeight;
+        }
+        window.addEventListener('resize', resizeGraphicViewports);
+        resizeGraphicViewports();
+
+        // Estructura de coordenadas para nodos de vecinos del Spatial Hash Map
+        const mockNeighbourNodes = [
+            { x: 40, y: 30, color: "var(--hud-border-green)", icon: "🌿" },
+            { x: 180, y: 85, color: "var(--hud-border-cyan)", icon: "🧪" },
+            { x: 260, y: 40, color: "var(--hud-border-green)", icon: "🌵" },
+            { x: 110, y: 110, color: "var(--hud-border-amber)", icon: "⚠️" }
+        ];
+
+        function gameGraphicsRenderLoop(timestamp) {
+            // --- A. RENDERIZADO DEL CANVAS CENTRAL (PLANTA EN AR) ---
+            arCtx.clearRect(0, 0, arCanvas.width, arCanvas.height);
+            
+            const midX = arCanvas.width / 2;
+            const midY = arCanvas.height / 2;
+            const p = ENGINE_STATE.plant;
+
+            // Cuadrícula holográfica de fijación en el suelo (Surface Meshing)
+            arCtx.strokeStyle = "rgba(57, 229, 138, 0.08)";
+            arCtx.lineWidth = 1;
+            const size = 35;
+            for (let x = 0; x < arCanvas.width; x += size) {
+                arCtx.beginPath(); arCtx.moveTo(x, 0); arCtx.lineTo(x, arCanvas.height); arCtx.stroke();
+            }
+            for (let y = 0; y < arCanvas.height; y += size) {
+                arCtx.beginPath(); arCtx.moveTo(0, y); arCtx.lineTo(arCanvas.width, y); arCtx.stroke();
             }
 
-            const cX = canvas.width / 2;
-            const cY = canvas.height / 2;
-
-            [span_80](start_span)[span_81](start_span)// Dibujar rango de cobertura del gremio / Crew Turf (60% de nodos para control de peajes)[span_80](end_span)[span_81](end_span)
-            ctx.strokeStyle = "rgba(0, 225, 255, 0.15)";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(cX, cY, 90, 0, Math.PI*2);
-            ctx.stroke();
-
-            [span_82](start_span)// Renderizar la geometría de la planta o los restos desintegrados por Niagara[span_82](end_span)
-            if (GAME_STATE.plant.active && GAME_STATE.plant.healthLevel > 0) {
-                const wave = Math.sin(time * 0.004) * 5;
-                ctx.shadowBlur = 12;
-                [span_83](start_span)// Si es la Axiom Aeterna brilla con un neón cuántico translúcido[span_83](end_span)
-                ctx.shadowColor = GAME_STATE.plant.isAeterna ? "var(--neon-cyan)" : "var(--neon-green)";
-                ctx.fillStyle = ctx.shadowColor;
+            if (p.active && p.healthLevel > 0) {
+                // Deformación física u oscilación de hojas simulada por una onda sinusoidal basculante
+                const sway = Math.sin(timestamp * 0.003) * 8;
                 
-                ctx.beginPath();
-                ctx.arc(cX + wave, cY, 12 + (GAME_STATE.plant.healthLevel * 6), 0, Math.PI*2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                [span_84](start_span)// Línea vectorial que simula el movimiento del mensajero por la calle[span_84](end_span)
-                if (GAME_STATE.simulation.muleSpeed > 0) {
-                    ctx.strokeStyle = "var(--neon-amber)";
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(cX, cY);
-                    ctx.lineTo(cX + Math.cos(time*0.002)*60, cY + Math.sin(time*0.002)*60);
-                    ctx.stroke();
+                arCtx.shadowBlur = 20;
+                // Sincronizar color neón: Si es la Axiom Aeterna brilla en azul ciber-cuántico, si no, verde o ámbar
+                if (p.isAeterna) {
+                    arCtx.shadowColor = "var(--hud-border-cyan)";
+                    arCtx.fillStyle = "rgba(0, 225, 255, 0.8)";
+                } else {
+                    arCtx.shadowColor = p.geneticSex === "Female" ? "var(--hud-border-green)" : "var(--hud-border-amber)";
+                    arCtx.fillStyle = p.geneticSex === "Female" ? "rgba(57, 229, 138, 0.8)" : "rgba(255, 170, 0, 0.8)";
                 }
-            } else if (GAME_STATE.plant.active && GAME_STATE.plant.healthLevel === 0) {
-                [span_85](start_span)[span_86](start_span)// Render de partículas desintegradas por protocolo de muerte definitiva[span_85](end_span)[span_86](end_span)
-                ctx.fillStyle = "var(--neon-red)";
-                for(let i=0; i<8; i++) {
-                    let pX = cX + Math.sin(time*0.01 + i)*25;
-                    let pY = cY + (i*4) - 15;
-                    ctx.fillRect(pX, pY, 3, 3);
+
+                // Dibujar modelado geométrico incremental según la salud y el tipo
+                const radius = 15 + (p.healthLevel * 18);
+                arCtx.beginPath();
+                arCtx.arc(midX + sway, midY + 40, radius, 0, Math.PI * 2);
+                arCtx.fill();
+                
+                // Dibujar filamentos ciber-orgánicos adicionales (Tallos y Hojas AR)
+                arCtx.strokeStyle = arCtx.shadowColor;
+                arCtx.lineWidth = 3;
+                arCtx.beginPath();
+                arCtx.moveTo(midX, midY + 120);
+                arCtx.quadraticCurveTo(midX + sway * 1.5, midY + 70, midX + sway, midY + 40);
+                arCtx.stroke();
+                arCtx.shadowBlur = 0;
+
+                // Si está en fase de curado hermético, dibujar contorno de frasco digital
+                if (p.moistureContent > 0) {
+                    arCtx.strokeStyle = "var(--hud-border-red)";
+                    arCtx.lineWidth = 1;
+                    arCtx.setLineDash([4, 4]);
+                    arCtx.strokeRect(midX - 50 + sway, midY - 10, 100, 140);
+                    arCtx.setLineDash([]);
+                }
+
+            } else if (p.active && p.healthLevel === 0) {
+                // Renderización de partículas destructivas Niagara si entra en Permadeath
+                arCtx.fillStyle = "var(--hud-border-red)";
+                for (let i = 0; i < 20; i++) {
+                    const particleX = midX + Math.sin(timestamp * 0.01 + i) * (i * 2);
+                    const particleY = (midY + 60) - (i * 5) + (Math.sin(timestamp * 0.005) * 10);
+                    arCtx.fillRect(particleX, particleY, 3, 3);
                 }
             }
 
-            requestAnimationFrame(renderGameGraphicsLoop);
+            // --- B. RENDERIZADO DEL MINI-MAPA DE CONTROL (AXIOM PLANT MAPS) ---
+            mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+            
+            // Dibujar círculos concéntricos de escaneo de proximidad Bluetooth (BLE)
+            const mapX = mapCanvas.width / 2;
+            const mapY = mapCanvas.height / 2;
+            const pulseRadius = (timestamp * 0.04) % (mapCanvas.width / 2);
+            
+            mapCtx.strokeStyle = "rgba(0, 225, 255, 0.15)";
+            mapCtx.lineWidth = 1;
+            mapCtx.beginPath();
+            mapCtx.arc(mapX, mapY, pulseRadius, 0, Math.PI * 2);
+            mapCtx.stroke();
+
+            // Dibujar las líneas de interconexión de distritos para Spatial Hashing WGS84
+            mapCtx.strokeStyle = "rgba(27, 53, 39, 0.4)";
+            for (let i = 0; i < mapCanvas.width; i += 25) {
+                mapCtx.beginPath(); mapCtx.moveTo(i, 0); mapCtx.lineTo(i, mapCanvas.height); mapCtx.stroke();
+                mapCtx.beginPath(); mapCtx.moveTo(0, i); mapCtx.lineTo(mapCanvas.width, i); mapCtx.stroke();
+            }
+
+            // Dibujar los actores del mapa precargados mediante Object Pooling simulado
+            mockNeighbourNodes.forEach(node => {
+                mapCtx.fillStyle = node.color;
+                mapCtx.beginPath();
+                mapCtx.arc(node.x, node.y, 4, 0, Math.PI * 2);
+                mapCtx.fill();
+                mapCtx.font = "10px Arial";
+                mapCtx.fillText(node.icon, node.x - 5, node.y - 6);
+            });
+
+            // Nodo de tu posición GPS central parpadeante
+            if (Math.floor(timestamp / 400) % 2 === 0) {
+                mapCtx.fillStyle = "var(--hud-border-cyan)";
+                mapCtx.beginPath();
+                mapCtx.arc(mapX, mapY, 5, 0, Math.PI * 2);
+                mapCtx.fill();
+            }
+
+            requestAnimationFrame(gameGraphicsRenderLoop);
         }
 
-        // --- 10. ARRANQUE DEL RELOJ DE INTERVENCIONES ---
-        setInterval(executePassiveLifeCycle, 1000); // Tasa de refresco del motor biológico de datos
-        requestAnimationFrame(renderGameGraphicsLoop);
-        syncGameHUD();
+        // --- 4. INICIALIZACIÓN COMPILADA DEL ENTORNO ---
+        requestAnimationFrame(gameGraphicsRenderLoop);
+        // Lanzar dimensiones iniciales corregidas
+        setTimeout(resizeGraphicViewports, 100);
     </script>
 </body>
 </html>
